@@ -14,6 +14,8 @@ https://claude.ai/artifact/T5RjncMqVNN3Ltx5yP6UF9
 | `p1art.js` | Part 1 SVG illustrations. `ART(k)` draws scene k for `P1B[k]`. |
 | `plan.js` | 46-day plan text (`PLAN`) |
 | `drill.js` | Daily problem engine ("문제 풀기" tab), speech output (TTS), spaced review |
+| `news.js` | Update bar at the top of the page. Built from per-batch snapshots that build.py records after each bank file. |
+| `notes.json` | Optional one-line Korean note per batch, shown in the update bar, e.g. `{"bank5_002.js": "Part 3 의도 파악 문제 강화"}` |
 | `validate.js` | Checks every question (answer index, duplicate options) and simulates all 46 days |
 | `uitest.js` | Clicks through the phone UI with a stubbed TTS |
 
@@ -51,4 +53,10 @@ python3 build.py
 NODE_PATH=$(npm root -g) node validate.js   # "bad":[] is required
 NODE_PATH=$(npm root -g) node uitest.js     # errors [] is required
 ```
-Then publish `toeic.html` to the artifact URL above, keeping that URL.
+Order matters:
+1. Commit and push to `toeic-app`.
+2. Only after the push succeeds, publish `toeic.html` to the artifact URL above.
+
+If the push fails, do not publish. A published page that is not in git makes the next run refuse to publish.
+
+The update bar dates each `bank5_*` file by the commit that first added it. Commit before the final build so the date is right. A file that is not yet committed shows today's date, which is the same day.

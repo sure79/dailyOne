@@ -6,7 +6,19 @@ def rep(old,new,count=1):
     s=s.replace(old,new)
 
 # 1 CSS
-rep("/* narrower windows","""/* ---------- drill ---------- */
+rep("/* narrower windows","""/* ---------- update news ---------- */
+.news{max-width:1000px;border:1px solid var(--line);border-left:4px solid var(--omr);background:var(--surface);border-radius:12px;padding:12px 16px;margin-bottom:20px;display:flex;flex-direction:column;gap:8px}
+.nhead{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.ntitle{font-weight:500}
+.ntot{margin-left:auto;font-size:13px;color:var(--muted)}
+.nchips{display:flex;flex-wrap:wrap;gap:6px}
+.nchip{font-family:var(--f-mono);font-size:12px;padding:2px 8px;border-radius:99px;background:var(--bg);border:1px solid var(--line);white-space:nowrap}
+.nchip b{color:var(--muted);font-weight:500;margin-right:3px}
+.nchip em{font-style:normal;color:var(--good);margin-left:4px;font-weight:700}
+.nfoot{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center}
+.nlist{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;font-size:13.5px;max-height:240px;overflow:auto;border-top:1px solid var(--line);padding-top:8px}
+
+/* ---------- drill ---------- */
 .dprog{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
 .dprog i{display:block;height:100%;width:0;background:var(--omr);transition:width .3s}
 .scene{border:1.5px dashed var(--muted);border-radius:10px;padding:12px 16px;background:var(--bg)}
@@ -85,7 +97,25 @@ s=s[:a]+open('plan.js').read()+"\n"+s[b:]
 
 # 6 bank data
 import glob
-bank=''.join(open(f).read() for f in sorted(glob.glob('bank*.js')))+open('vocab2.js').read()+open('p1art.js').read()
+import subprocess, json, datetime, os
+KST=datetime.timezone(datetime.timedelta(hours=9))
+NOW=datetime.datetime.now(KST)
+NOTES=json.load(open('notes.json')) if os.path.exists('notes.json') else {}
+def fdate(f):
+    """date a bank file first entered git (KST), or today for a new uncommitted file"""
+    if not f.startswith('bank5_'): return '2026-09-30'
+    out=subprocess.run(['git','log','--diff-filter=A','--format=%cd','--date=format-local:%Y-%m-%d','--',f],
+        capture_output=True,text=True,env={**os.environ,'TZ':'Asia/Seoul'}).stdout.split()
+    return out[-1] if out else NOW.strftime('%Y-%m-%d')
+LABEL={'bank3.js':'처음 문제 은행','bank4c.js':'1차 확장 (Part 1–7)'}
+def snap(f):
+    if f not in LABEL and not f.startswith('bank5_'): return ''
+    l=LABEL.get(f) or '자동 추가 #'+f[6:9]
+    return '\n__snap(%s,%s,%s,%s);\n'%tuple(json.dumps(x,ensure_ascii=False) for x in (f,fdate(f),l,NOTES.get(f,'')))
+bank=("const BANKLOG=[];function __snap(f,d,l,n){const q=a=>a.reduce((s,x)=>s+x.q.length,0);"
+      "BANKLOG.push({f,d,l,n,c:[P1B.length,P2.length+P2N.length,q(P3B),q(P4B),G.length+G2.length,q(P6B),q(RD)+q(RD2)]});}\n"
+      "const BUILD_AT=%s;\n"%json.dumps(NOW.strftime('%m.%d %H:%M').lstrip('0')))
+bank+=''.join(open(f).read()+snap(f) for f in sorted(glob.glob('bank*.js')))+open('vocab2.js').read()+open('p1art.js').read()
 bank+="\n{const seen=new Set(),u=V.filter(w=>!seen.has(w[0])&&seen.add(w[0]));V.splice(0,V.length,...u);NSET=Math.ceil(V.length/20);}\n"
 
 rep("/* ================= helpers ================= */",bank+"\n/* ================= helpers ================= */")
@@ -126,5 +156,7 @@ rep("""...RI.filter(x=>S.rdwrong[x.id]).map(x=>['독해 · '+x.tag,x])];""",""".
 
 # drill engine
 rep("/* ================= scores ================= */",open('drill.js').read()+"\n/* ================= scores ================= */")
+rep("/* ================= boot ================= */","/* ================= boot ================= */"+open('news.js').read())
+rep("<main>\n","<main>\n<div id=\"news\" class=\"news\" aria-live=\"polite\"></div>\n")
 open('toeic.html','w').write(s)
 print(len(s))

@@ -174,6 +174,18 @@ details p{margin:6px 0 0}
 .xbtn{border:0;background:none;color:var(--muted);padding:2px 6px;font-size:13px}
 .xbtn:hover{color:var(--omr)}
 
+/* ---------- update news ---------- */
+.news{max-width:1000px;border:1px solid var(--line);border-left:4px solid var(--omr);background:var(--surface);border-radius:12px;padding:12px 16px;margin-bottom:20px;display:flex;flex-direction:column;gap:8px}
+.nhead{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.ntitle{font-weight:500}
+.ntot{margin-left:auto;font-size:13px;color:var(--muted)}
+.nchips{display:flex;flex-wrap:wrap;gap:6px}
+.nchip{font-family:var(--f-mono);font-size:12px;padding:2px 8px;border-radius:99px;background:var(--bg);border:1px solid var(--line);white-space:nowrap}
+.nchip b{color:var(--muted);font-weight:500;margin-right:3px}
+.nchip em{font-style:normal;color:var(--good);margin-left:4px;font-weight:700}
+.nfoot{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center}
+.nlist{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;font-size:13.5px;max-height:240px;overflow:auto;border-top:1px solid var(--line);padding-top:8px}
+
 /* ---------- drill ---------- */
 .dprog{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
 .dprog i{display:block;height:100%;width:0;background:var(--omr);transition:width .3s}
@@ -251,6 +263,7 @@ details p{margin:6px 0 0}
 </aside>
 
 <main>
+<div id="news" class="news" aria-live="polite"></div>
 <!-- A. TODAY -->
 <section id="v-today">
   <div class="banner" id="examBanner" hidden></div>
@@ -664,6 +677,8 @@ Employees who have completed a similar course within the past year may request a
 ["Who can request an exemption?",["New employees","Supervisors","Employees who recently took a similar course","Employees who work in Human Resources"],2,"세부","completed a similar course within the past year → recently took a similar course."],
 ["In which of the positions marked [1], [2], [3], and [4] does the following sentence best belong?\n\"Therefore, early sign-up is strongly encouraged.\"",["[1]","[2]","[3]","[4]"],3,"문장 삽입","Therefore(그러므로)의 근거는 ‘선착순 마감’. first-come, first-served 문장 바로 뒤인 [4]."]]}];
 
+const BANKLOG=[];function __snap(f,d,l,n){const q=a=>a.reduce((s,x)=>s+x.q.length,0);BANKLOG.push({f,d,l,n,c:[P1B.length,P2.length+P2N.length,q(P3B),q(P4B),G.length+G2.length,q(P6B),q(RD)+q(RD2)]});}
+const BUILD_AT="9.30 21:24";
 /* ================= question bank for the in-app drill (no textbook needed) ================= */
 /* Part 1: [photo description (ko), statements, answer, explanation] */
 const P1B=[
@@ -1491,6 +1506,8 @@ Mark, City Bike Rentals`,q:[
 ["How much does a half-day rental cost per person before any discount?",["$5","$15","$25","$3"],1,"세부","Half day (4 hours): $15."],
 ["What problem is mentioned in the reply?",["No bikes are available.","Only one child seat is available.","The shop is closed on Saturday.","The price has increased."],1,"세부","only one child seat left."],
 ["By when should Ms. Tran reply?",["May 3","May 4","May 10","May 17"],2,"세부","reply by May 10."]]}];
+
+__snap("bank3.js","2026-09-30","처음 문제 은행","");
 /* ===== bank expansion (appended so earlier question ids stay stable) ===== */
 P1B.push(
 ["남자가 차 트렁크에 여행 가방을 싣고 있다",["He's loading a suitcase into a car.","He's opening a car door.","He's fixing a tire.","He's washing a car."],0,"load A into B = A를 B에 싣다."],
@@ -2119,6 +2136,8 @@ Online orders can be returned by mail or at any Nova store. Return shipping is f
 ["What is required for a return?",["A membership card","A receipt or order number","A photo ID","A repair report"],1,"세부","A receipt or order number is required."],
 ["What is indicated about headphones?",["They can be returned within 60 days.","They can only be exchanged if defective.","They are not sold online.","They include free shipping."],1,"세부","exchanged for the same item if defective."],
 ["Who can return items by mail for free?",["All customers","Nova Plus members","Customers who bought software","Store employees"],1,"세부","free for members of Nova Plus."]]});
+
+__snap("bank4c.js","2026-09-30","1차 확장 (Part 1–7)","");
 /* ===== batch 001 (appended so earlier question ids stay stable) ===== */
 P1B.push(
 ["남자가 벽에 액자를 걸고 있다",["He's hanging a picture on a wall.","He's painting a ceiling.","He's carrying a ladder upstairs.","He's sitting at a desk."],0,"hang a picture = 액자를 걸다. 사진 속 남자는 서서 벽에 손을 뻗고 있음."],
@@ -2392,6 +2411,8 @@ Elena Voss`,q:[
 ["How much will Ms. Rao most likely be reimbursed for meals?",["$22","$126","$148","$180"],1,"연계","$148 − 와인 $22 = $126 (일일 한도 $60 이내)."],
 ["What is implied about Ms. Rao's report?",["It was submitted on time.","It contained a math error.","It was missing receipts.","It was rejected."],0,"추론","3월 5일 귀국, 3월 12일 제출 → 10일 이내."]]}
 );
+
+__snap("bank5_001.js","2026-09-30","자동 추가 #001","첫 자동 추가: 800~900점 난이도로 Part 1~7 전체 보강");
 /* vocabulary expansion: 800-level words and phrases (sets 11+) */
 V.push(...[
 ["abundant","풍부한"],["accelerate","가속하다, 촉진하다"],["acclaim","찬사; 칭찬하다"],["accompany","동반하다"],["accumulate","축적하다"],["accurately","정확하게"],["acknowledge","인정하다, 수령을 알리다"],["acquisition","인수, 취득"],["adhere to","~을 고수하다, 준수하다"],["adjust","조정하다"],
@@ -3163,6 +3184,31 @@ $('#lReset').onclick=()=>{if(!resetArm){resetArm=true;$('#lReset').textContent='
   const g=S.goal;S=BLANK();S.goal=g;save();resetArm=false;$('#lReset').textContent='기록 전체 초기화';$('#lResetMsg').textContent='초기화했습니다.';refreshAll();};
 
 /* ================= boot ================= */
+/* ================= update news bar (top of every page) ================= */
+let newsOpen=null;
+function renderNews(){
+  const box=$('#news');if(!box||!BANKLOG.length)return;
+  const last=BANKLOG[BANKLOG.length-1],prev=BANKLOG[BANKLOG.length-2],sum=a=>a.reduce((x,y)=>x+y,0);
+  const diff=i=>prev?last.c[i]-prev.c[i]:0,tot=sum(last.c),add=prev?tot-sum(prev.c):tot;
+  let seen='';try{seen=localStorage.getItem('toeic-news-seen')||'';}catch(e){}
+  const isNew=seen!==last.f,md=d=>isoFmt(d);if(newsOpen===null)newsOpen=isNew;
+  const chips=last.c.map((n,i)=>`<span class="nchip"><b>P${i+1}</b> ${n}${diff(i)>0?`<em>+${diff(i)}</em>`:''}</span>`).join('');
+  const hist=[...BANKLOG].reverse().map((b,k,arr)=>{const p=arr[k+1];const a=p?sum(b.c)-sum(p.c):sum(b.c);
+    const parts=b.c.map((n,i)=>p&&n-p.c[i]>0?`P${i+1} +${n-p.c[i]}`:'').filter(Boolean).join(' · ');
+    return `<li><span class="kbd">${md(b.d)}</span> <b>${esc(b.l)}</b> · ${p?'+':''}${a}문항${parts?` <span class="muted">(${parts})</span>`:''}${b.n?`<br><span class="muted small">${esc(b.n)}</span>`:''}</li>`;}).join('');
+  box.innerHTML=`<div class="nhead"><span class="pill">${isNew?'NEW · ':''}업데이트</span>
+    <span class="ntitle">${md(last.d)} ${esc(last.l)}${prev?` · 새 문제 <b>+${add}</b>`:''}</span>
+    <span class="ntot">총 <b>${tot.toLocaleString()}</b>문항 · 단어 ${V.length}개${newsOpen?'':' <button class="xbtn" id="nOpen">파트별 보기 ▾</button>'}</span></div>
+    ${newsOpen?`<div class="nchips">${chips}</div>
+    ${last.n?`<p class="small" style="margin:0">${esc(last.n)}</p>`:''}
+    <div class="nfoot"><span class="muted small">최신 반영 ${esc(BUILD_AT)} · 매일 새벽 자동 추가</span>
+      <span class="row"><button class="btn sm" id="nHist">지난 업데이트 ${BANKLOG.length}건</button><button class="btn sm" id="nOk">${isNew?'확인':'접기'}</button></span></div>
+    <ul class="nlist" id="nList" hidden>${hist}</ul>`:''}`;
+  const hb=$('#nHist');if(hb)hb.onclick=()=>{$('#nList').hidden=!$('#nList').hidden;};
+  const op=$('#nOpen');if(op)op.onclick=()=>{newsOpen=true;renderNews();};
+  const ok=$('#nOk');if(ok)ok.onclick=()=>{try{localStorage.setItem('toeic-news-seen',last.f);}catch(e){}newsOpen=false;renderNews();};}
+renderNews();
+
 renderRail();resetTimer();vSetBtns();vStart();gStart('1');pStart('all');rStart('all');
 go((location.hash||'').slice(1)||'today');
 setSync('loading','저장소 연결 중…');
