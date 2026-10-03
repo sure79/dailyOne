@@ -10,7 +10,10 @@ https://claude.ai/artifact/T5RjncMqVNN3Ltx5yP6UF9
 | `page.html` | Original page (layout, vocab `V`, grammar `G`, Part 2 `P2`, reading `RD`, sync, tabs). Treat as the base; build.py patches it. |
 | `bank1.js` `bank2.js` `bank3.js` | First bank: `P1B`, `P2N`+`P2TAG`, `G2`, `P3B`, `P4B`, `P6B`, `RD2` |
 | `bank4a.js` `bank4b.js` `bank4c.js`, `bank5_NNN.js` … | Later additions, each one `push`es onto the arrays above. `build.py` includes every `bank*.js` in sorted order. |
-| `vocab2.js` | Extra vocabulary, `V.push(...)`. Duplicates are dropped at build time. |
+| `vocab2.js` `vocab3.js` | Extra vocabulary, `V.push(...)`. Duplicates are dropped at build time. |
+| `vocabx.js` | Flip-card extras per word: `VX[word]=[품사, 짝꿍 표현, 예문, 예문 해석]` |
+| `dash.js` | Today dashboard (4 daily routines, streak, stats) and the 3D vocab flip card |
+| `list.js` | `node list.js G2 0 40 --missing` prints items and ids that still lack extras; `node list.js VX` lists words without card extras |
 | `p1art.js` | Part 1 SVG illustrations. `ART(k)` draws scene k for `P1B[k]`. |
 | `plan.js` | 46-day plan text (`PLAN`) |
 | `drill.js` | Daily problem engine ("문제 풀기" tab), speech output (TTS), spaced review |
@@ -34,6 +37,15 @@ P6B.push({t:"유형 · 제목",p:`text with ---(1)--- ... ---(4)---`,q:[[["o1","
 RD2.push({t:"제목",k:"single|chat|double|triple",p:`passages; separate passages with ━━━━━━━━━━━━━━━━`,q:[["Q?",["A","B","C","D"],ans,"type","해설"],...]});
 P1B.push(["장면 설명(한국어)",["stmt A","stmt B","stmt C","stmt D"],ans,"해설"]);  // also add a matching scene to p1art.js S[index]
 ```
+
+### Extras (shown after grading)
+Put an object at the end of an item, or add it later with `Object.assign(EX,{"<id>":{...}})` (backfill for items that already exist).
+- Part 5 (`G2`): `{tr:"문장 해석", vo:"핵심 어휘 · 짝꿍 표현"}`. Example: `G2.push([q,opts,ans,"품사","해설",{tr:"...",vo:"..."}])`. Backfill id: `q<index>`.
+- Part 2 (`P2N`): `{tr:"질문 해석", otr:["보기 해석"x3], trap:["", "오답 이유", "오답 이유"], tip:"소거 팁"}`. `trap`/`otr` follow the original option order; use "" for the correct one. Backfill id: `b<index>`.
+- Part 3/4 (`P3B`/`P4B` question, at index 4), Part 6 (`P6B` question, index 4), Part 7 (`RD2` question, index 5): `{ev:"정답 근거 문장 (script or passage, copied exactly)", pa:"근거 표현 → 보기 표현 (패러프레이징)"}`. The app highlights `ev` in the text. Backfill id: `<unit><index>.<question>` such as `f3.1`.
+- Words: `Object.assign(VX,{"word":["동사","짝꿍 표현","Example sentence.","예문 해석"]})`. The word must already be in `V`.
+
+validate.js checks that `trap`/`otr` have one entry per option, that every `ev` occurs in its passage or script, and that every `EX`/`VX` key exists.
 
 Options are shuffled when shown, so the correct answer's position does not matter. Do not refer to answers by letter in explanations.
 

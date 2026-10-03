@@ -38,6 +38,48 @@ rep("/* narrower windows","""/* ---------- update news ---------- */
 .passage .ptbl td{padding:4px 6px 4px 0;border-top:1px solid var(--line);vertical-align:top}
 .passage .ptbl td.h{font-weight:700;border-top:0;color:var(--muted);font-size:12.5px}
 
+/* ---------- spec update: time attack, elimination, dashboard, flip cards ---------- */
+.tatk{display:flex;align-items:center;gap:10px}
+.tbar{flex:1;height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.tbar i{display:block;height:100%;background:var(--good);transition:width 1s linear}
+#p5Left{min-width:3.2em;text-align:right}
+#p5Left.over{color:var(--omr);font-weight:700}
+.xr{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:14.5px}
+.elim{list-style:none;margin:6px 0 8px;padding:0;display:flex;flex-direction:column;gap:6px}
+.elim li{padding:6px 8px;border-radius:8px;background:var(--surface);border:1px solid var(--line)}
+.elim li.ok{border-color:var(--good)}
+.elim li.no b{color:var(--omr)}
+.elim li.ok b{color:var(--good)}
+mark{background:#ffe866;color:#1a1a1a;padding:0 1px;border-radius:2px}
+.grid3n{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.grid3n .stat b{font-size:22px}
+.rout{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.rout li{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.rout li.on{border-color:var(--good)}
+.rout .ck{width:30px;height:30px;border-radius:50%;border:2px solid var(--muted);background:var(--surface);font-weight:700;color:var(--surface);cursor:pointer;padding:0}
+.rout li.on .ck{background:var(--good);border-color:var(--good)}
+.dstats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center}
+.dstats div{display:flex;flex-direction:column;padding:8px 4px;border-radius:10px;background:var(--bg)}
+.dstats b{font-family:var(--f-mono);font-size:20px;font-variant-numeric:tabular-nums}
+.dstats small{font-size:12px;color:var(--muted)}
+.dstats span{font-size:12px;color:var(--muted)}
+#tDash{display:flex;flex-direction:column;gap:12px}
+.flip{perspective:1000px;width:100%;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent}
+.flip .fi{position:relative;width:100%;min-height:250px;transition:transform .5s;transform-style:preserve-3d}
+.flip.on .fi{transform:rotateY(180deg)}
+.flip.nt .fi{transition:none}
+.flip .ff{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:16px;text-align:center;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:14px;background:var(--bg);border:1px solid var(--line)}
+.flip .back{transform:rotateY(180deg)}
+.flip:focus-visible .ff{outline:2px solid var(--ink)}
+.flip .w{font-size:32px;font-weight:700;overflow-wrap:anywhere}
+.flip .pos{font-size:12.5px;color:var(--muted)}
+.flip .col{font-family:var(--f-mono);font-size:14px;padding:3px 10px;border-radius:99px;border:1px solid var(--line);background:var(--surface)}
+.flip .m{font-size:21px;color:var(--omr);font-weight:700}
+.flip .ex{font-size:15px;line-height:1.5}
+.flip .ext{font-size:13.5px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.flip .fi{transition:none}}
+@media (max-width:520px){.dstats b{font-size:17px}.rout li{grid-template-columns:30px 1fr auto;gap:8px}}
+
 /* narrower windows""")
 
 # 2 nav
@@ -58,7 +100,7 @@ rep("<!-- B. PLAN -->","""<!-- DRILL -->
     </div>
     <div class="row"><span class="dclock" id="dClock"></span><span id="dDayNav" class="row"><button class="btn" id="dPrev" aria-label="이전 날">‹</button><button class="btn" id="dNext" aria-label="다음 날">›</button></span></div>
   </div>
-  <div class="seg" id="dMode" style="align-self:flex-start"><button data-m="day">날짜별 문제</button><button data-m="free">파트별 연습</button><button data-m="wrong">오답 복습</button></div>
+  <div class="seg" id="dMode" style="align-self:flex-start"><button data-m="day">날짜별 문제</button><button data-m="free">파트별 연습</button><button data-m="wrong">오답노트</button></div>
   <div class="seg" id="dPick" style="align-self:flex-start" hidden></div>
   <div class="dprog"><i id="dProg"></i></div>
   <div class="panel" id="dBox"></div>
@@ -107,23 +149,23 @@ def fdate(f):
     out=subprocess.run(['git','log','--diff-filter=A','--format=%cd','--date=format-local:%Y-%m-%d','--',f],
         capture_output=True,text=True,env={**os.environ,'TZ':'Asia/Seoul'}).stdout.split()
     return out[-1] if out else NOW.strftime('%Y-%m-%d')
-LABEL={'bank3.js':'처음 문제 은행','bank4c.js':'1차 확장 (Part 1–7)'}
+LABEL={'bank3.js':'처음 문제 은행','bank4c.js':'1차 확장 (Part 1–7)','bank5_002.js':'학습 기능 업데이트'}
 def snap(f):
     if f not in LABEL and not f.startswith('bank5_'): return ''
     l=LABEL.get(f) or '자동 추가 #'+f[6:9]
     return '\n__snap(%s,%s,%s,%s);\n'%tuple(json.dumps(x,ensure_ascii=False) for x in (f,fdate(f),l,NOTES.get(f,'')))
 bank=("const BANKLOG=[];function __snap(f,d,l,n){const q=a=>a.reduce((s,x)=>s+x.q.length,0);"
       "BANKLOG.push({f,d,l,n,c:[P1B.length,P2.length+P2N.length,q(P3B),q(P4B),G.length+G2.length,q(P6B),q(RD)+q(RD2)]});}\n"
-      "const BUILD_AT=%s;\n"%json.dumps(NOW.strftime('%m.%d %H:%M').lstrip('0')))
-bank+=''.join(open(f).read()+snap(f) for f in sorted(glob.glob('bank*.js')))+open('vocab2.js').read()+open('p1art.js').read()
+      "const BUILD_AT=%s;\nconst EX={},VX={};\n"%json.dumps(NOW.strftime('%m.%d %H:%M').lstrip('0')))
+bank+=''.join(open(f).read()+snap(f) for f in sorted(glob.glob('bank*.js')))+''.join(open(f).read() for f in sorted(glob.glob('vocab*.js')))+open('p1art.js').read()
 bank+="\n{const seen=new Set(),u=V.filter(w=>!seen.has(w[0])&&seen.add(w[0]));V.splice(0,V.length,...u);NSET=Math.ceil(V.length/20);}\n"
 
 rep("/* ================= helpers ================= */",bank+"\n/* ================= helpers ================= */")
 
 # 7 state
-rep("vt:[],scores:[],updatedAt:0};}","vt:[],scores:[],runs:{},seen:{},dw:{},pstat:{},dr:[],updatedAt:0};}")
+rep("vt:[],scores:[],updatedAt:0};}","vt:[],scores:[],runs:{},seen:{},dw:{},pstat:{},dr:[],act:{},mst:0,updatedAt:0};}")
 rep("for(const k of ['gram','p2','rd','vt'])b[k]=","for(const k of ['gram','p2','rd','vt','dr'])b[k]=")
-rep("function trim(){for(const k of ['gram','p2','rd','vt'])","function trim(){for(const k of ['gram','p2','rd','vt','dr'])")
+rep("function trim(){for(const k of ['gram','p2','rd','vt'])","function trim(){{const ks=Object.keys(S.act).sort();ks.slice(0,Math.max(0,ks.length-60)).forEach(k=>delete S.act[k]);}for(const k of ['gram','p2','rd','vt','dr'])")
 rep("||s.scores.length||s.vt.length;}","||s.scores.length||s.vt.length||Object.keys(s.runs).length;}")
 rep("return {lc:e.lc==null?null:est('lc',e.lc,n),rc:e.rc==null?null:est('rc',e.rc,n)};}","return {lc:e.lc==null?null:est('lc',e.lc,e.nl||n),rc:e.rc==null?null:est('rc',e.rc,e.nr||n)};}")
 rep("<td>${e.k==='full'?'실전':'하프'}</td><td class=\"num\">${e.lc==null?'–':e.lc+'/'+n}</td><td class=\"num\">${e.rc==null?'–':e.rc+'/'+n}</td>",
@@ -155,8 +197,27 @@ rep("""...RI.filter(x=>S.rdwrong[x.id]).map(x=>['독해 · '+x.tag,x])];""",""".
     ...U.filter(u=>!'gpr'.includes(u.id[0])).flatMap(u=>u.qs.filter(q=>S.dw[q.id]).map(q=>{const vw=qView(q);return ['Part '+u.part+(q.tag?' · '+q.tag:''),{q:u.part===1?u.scene:u.part===6?(u.ptitle+' · '+q.q):q.q,opts:vw.opts,a:vw.a,exp:vw.exp}];}))];""")
 
 # drill engine
-rep("/* ================= scores ================= */",open('drill.js').read()+"\n/* ================= scores ================= */")
+rep("/* ================= scores ================= */",open('drill.js').read()+open('dash.js').read()+"\n/* ================= scores ================= */")
 rep("/* ================= boot ================= */","/* ================= boot ================= */"+open('news.js').read())
 rep("<main>\n","<main>\n<div id=\"news\" class=\"news\" aria-live=\"polite\"></div>\n")
+# dashboard on today
+rep('''  <div class="grid2">
+    <div class="panel">
+      <div id="tBlocks"></div>''','''  <div class="panel" id="tDash"></div>
+  <div class="grid2">
+    <div class="panel">
+      <div id="tBlocks"></div>''')
+rep("  if(tm.day!==n)resetTimer();\n  renderRail();}","  if(tm.day!==n)resetTimer();\n  renderDash();renderRail();}")
+# vocab flip card
+rep('''<button class="card" id="vCard"><span class="w" id="vW"></span><span class="m" id="vM" hidden></span><span class="muted small" id="vHint">눌러서 뜻 보기</span></button>''',
+'''<div class="flip" id="vCard" role="button" tabindex="0" aria-label="단어 카드, 눌러서 뒤집기"><div class="fi">
+      <div class="ff front"><span class="pos" id="vPos"></span><span class="w" id="vW"></span><span class="col" id="vCol" hidden></span><button class="btn sm" id="vSay" type="button">🔊 발음</button><span class="muted small" id="vHint">눌러서 뒤집기</span></div>
+      <div class="ff back"><span class="m" id="vM"></span><span class="ex" id="vEx"></span><span class="ext" id="vExT"></span><button class="btn sm" id="vExB" type="button">🔊 예문</button></div></div></div>''')
+rep('<button class="btn primary" id="vKnow">알아요</button>','<button class="btn primary" id="vKnow">외웠어요</button>')
+a=s.index("function vDraw(){const w=vs.q[vs.i];");b=s.index("function vChips(){")
+s=s[:a]+s[b:]
+rep("$('#vKnow').onclick=()=>{const w=vs.q[vs.i];if(!w)return;S.known[w[0]]=true;","$('#vKnow').onclick=()=>{const w=vs.q[vs.i];if(!w)return;S.known[w[0]]=true;actAdd('v');")
+rep("$('#vAgain').onclick=()=>{const w=vs.q[vs.i];if(!w)return;S.known[w[0]]=false;","$('#vAgain').onclick=()=>{const w=vs.q[vs.i];if(!w)return;S.known[w[0]]=false;actAdd('v');")
+rep("오답노트 · 다시 맞히면 자동으로 빠집니다","오답노트 · ‘문제 풀기 → 오답노트’에서 다시 풀고 ‘마스터 완료’로 뺍니다")
 open('toeic.html','w').write(s)
 print(len(s))

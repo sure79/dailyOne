@@ -206,6 +206,48 @@ details p{margin:6px 0 0}
 .passage .ptbl td{padding:4px 6px 4px 0;border-top:1px solid var(--line);vertical-align:top}
 .passage .ptbl td.h{font-weight:700;border-top:0;color:var(--muted);font-size:12.5px}
 
+/* ---------- spec update: time attack, elimination, dashboard, flip cards ---------- */
+.tatk{display:flex;align-items:center;gap:10px}
+.tbar{flex:1;height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.tbar i{display:block;height:100%;background:var(--good);transition:width 1s linear}
+#p5Left{min-width:3.2em;text-align:right}
+#p5Left.over{color:var(--omr);font-weight:700}
+.xr{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:14.5px}
+.elim{list-style:none;margin:6px 0 8px;padding:0;display:flex;flex-direction:column;gap:6px}
+.elim li{padding:6px 8px;border-radius:8px;background:var(--surface);border:1px solid var(--line)}
+.elim li.ok{border-color:var(--good)}
+.elim li.no b{color:var(--omr)}
+.elim li.ok b{color:var(--good)}
+mark{background:#ffe866;color:#1a1a1a;padding:0 1px;border-radius:2px}
+.grid3n{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.grid3n .stat b{font-size:22px}
+.rout{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.rout li{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.rout li.on{border-color:var(--good)}
+.rout .ck{width:30px;height:30px;border-radius:50%;border:2px solid var(--muted);background:var(--surface);font-weight:700;color:var(--surface);cursor:pointer;padding:0}
+.rout li.on .ck{background:var(--good);border-color:var(--good)}
+.dstats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center}
+.dstats div{display:flex;flex-direction:column;padding:8px 4px;border-radius:10px;background:var(--bg)}
+.dstats b{font-family:var(--f-mono);font-size:20px;font-variant-numeric:tabular-nums}
+.dstats small{font-size:12px;color:var(--muted)}
+.dstats span{font-size:12px;color:var(--muted)}
+#tDash{display:flex;flex-direction:column;gap:12px}
+.flip{perspective:1000px;width:100%;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent}
+.flip .fi{position:relative;width:100%;min-height:250px;transition:transform .5s;transform-style:preserve-3d}
+.flip.on .fi{transform:rotateY(180deg)}
+.flip.nt .fi{transition:none}
+.flip .ff{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:16px;text-align:center;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:14px;background:var(--bg);border:1px solid var(--line)}
+.flip .back{transform:rotateY(180deg)}
+.flip:focus-visible .ff{outline:2px solid var(--ink)}
+.flip .w{font-size:32px;font-weight:700;overflow-wrap:anywhere}
+.flip .pos{font-size:12.5px;color:var(--muted)}
+.flip .col{font-family:var(--f-mono);font-size:14px;padding:3px 10px;border-radius:99px;border:1px solid var(--line);background:var(--surface)}
+.flip .m{font-size:21px;color:var(--omr);font-weight:700}
+.flip .ex{font-size:15px;line-height:1.5}
+.flip .ext{font-size:13.5px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.flip .fi{transition:none}}
+@media (max-width:520px){.dstats b{font-size:17px}.rout li{grid-template-columns:30px 1fr auto;gap:8px}}
+
 /* narrower windows (e.g. the artifact side panel): same side rail, slimmer */
 @media (max-width:980px){
   :root{--railw:204px}
@@ -279,6 +321,7 @@ details p{margin:6px 0 0}
       <button class="btn" id="tNextD" aria-label="다음 날">다음 ›</button>
     </div>
   </div>
+  <div class="panel" id="tDash"></div>
   <div class="grid2">
     <div class="panel">
       <div id="tBlocks"></div>
@@ -318,7 +361,7 @@ details p{margin:6px 0 0}
     </div>
     <div class="row"><span class="dclock" id="dClock"></span><span id="dDayNav" class="row"><button class="btn" id="dPrev" aria-label="이전 날">‹</button><button class="btn" id="dNext" aria-label="다음 날">›</button></span></div>
   </div>
-  <div class="seg" id="dMode" style="align-self:flex-start"><button data-m="day">날짜별 문제</button><button data-m="free">파트별 연습</button><button data-m="wrong">오답 복습</button></div>
+  <div class="seg" id="dMode" style="align-self:flex-start"><button data-m="day">날짜별 문제</button><button data-m="free">파트별 연습</button><button data-m="wrong">오답노트</button></div>
   <div class="seg" id="dPick" style="align-self:flex-start" hidden></div>
   <div class="dprog"><i id="dProg"></i></div>
   <div class="panel" id="dBox"></div>
@@ -393,10 +436,12 @@ details p{margin:6px 0 0}
   </div>
   <div class="seg" id="vSet" style="align-self:flex-start"></div>
   <div class="panel" id="vCardBox">
-    <button class="card" id="vCard"><span class="w" id="vW"></span><span class="m" id="vM" hidden></span><span class="muted small" id="vHint">눌러서 뜻 보기</span></button>
+    <div class="flip" id="vCard" role="button" tabindex="0" aria-label="단어 카드, 눌러서 뒤집기"><div class="fi">
+      <div class="ff front"><span class="pos" id="vPos"></span><span class="w" id="vW"></span><span class="col" id="vCol" hidden></span><button class="btn sm" id="vSay" type="button">🔊 발음</button><span class="muted small" id="vHint">눌러서 뒤집기</span></div>
+      <div class="ff back"><span class="m" id="vM"></span><span class="ex" id="vEx"></span><span class="ext" id="vExT"></span><button class="btn sm" id="vExB" type="button">🔊 예문</button></div></div></div>
     <div class="row" style="justify-content:center;margin-top:8px">
       <button class="btn" id="vAgain">다시 볼래요</button>
-      <button class="btn primary" id="vKnow">알아요</button>
+      <button class="btn primary" id="vKnow">외웠어요</button>
     </div>
     <p class="muted small" style="text-align:center;margin:10px 0 0" id="vCount"></p>
   </div>
@@ -461,7 +506,7 @@ details p{margin:6px 0 0}
     <div class="panel"><div class="lab" style="margin-bottom:12px">문법 유형별 누적 정답률</div><div id="lTypes" style="display:flex;flex-direction:column;gap:8px"></div></div>
     <div class="panel"><div class="lab" style="margin-bottom:12px">최근 퀴즈</div><div id="lHist"></div></div>
   </div>
-  <div class="panel"><div class="lab" style="margin-bottom:6px">오답노트 · 다시 맞히면 자동으로 빠집니다</div><div id="lWrong"></div></div>
+  <div class="panel"><div class="lab" style="margin-bottom:6px">오답노트 · ‘문제 풀기 → 오답노트’에서 다시 풀고 ‘마스터 완료’로 뺍니다</div><div id="lWrong"></div></div>
   <div class="panel">
     <div class="lab">11월 15일 아침 체크리스트</div>
     <ul class="check" style="margin-top:10px">
@@ -678,7 +723,8 @@ Employees who have completed a similar course within the past year may request a
 ["In which of the positions marked [1], [2], [3], and [4] does the following sentence best belong?\n\"Therefore, early sign-up is strongly encouraged.\"",["[1]","[2]","[3]","[4]"],3,"문장 삽입","Therefore(그러므로)의 근거는 ‘선착순 마감’. first-come, first-served 문장 바로 뒤인 [4]."]]}];
 
 const BANKLOG=[];function __snap(f,d,l,n){const q=a=>a.reduce((s,x)=>s+x.q.length,0);BANKLOG.push({f,d,l,n,c:[P1B.length,P2.length+P2N.length,q(P3B),q(P4B),G.length+G2.length,q(P6B),q(RD)+q(RD2)]});}
-const BUILD_AT="9.30 21:24";
+const BUILD_AT="10.03 14:30";
+const EX={},VX={};
 /* ================= question bank for the in-app drill (no textbook needed) ================= */
 /* Part 1: [photo description (ko), statements, answer, explanation] */
 const P1B=[
@@ -2413,6 +2459,17 @@ Elena Voss`,q:[
 );
 
 __snap("bank5_001.js","2026-09-30","자동 추가 #001","첫 자동 추가: 800~900점 난이도로 Part 1~7 전체 보강");
+/* batch 002: seed items from the TOEIC Daily Master spec, with translation, vocab and trap analysis */
+G2.push(["Ms. Tanaka ------- reviewed the proposed merger contract before presenting it to the board of directors.",["thorough","thoroughly","thoroughness","more thorough"],1,"품사","주어(Ms. Tanaka)와 동사(reviewed) 사이는 동사를 꾸미는 부사 자리입니다. thoroughly가 정답입니다.",{tr:"다나카 씨는 이사회에 제출하기 전에 제안된 합병 계약서를 면밀하게 검토했다.",vo:"thoroughly 철저히, 면밀하게 · proposed merger contract 제안된 합병 계약서 · board of directors 이사회"}]);
+G2.push(["All maintenance personnel ------- to wear high-visibility vests while working in the warehouse.",["are required","require","requiring","has required"],0,"동사","주어 personnel은 복수 취급하고, 조끼 착용을 ‘요구받는’ 수동 관계입니다. 뒤에 목적어 없이 to부정사가 바로 오므로 수동태 are required가 정답입니다. has required는 단수 동사라 수가 맞지 않습니다.",{tr:"모든 시설 관리 직원은 창고에서 일하는 동안 눈에 잘 띄는 안전 조끼를 입어야 한다.",vo:"personnel 직원들(복수 취급) · be required to do ~해야 한다 · high-visibility vest 고시인성 안전 조끼"}]);
+G2.push(["------- the severe weather conditions, the international courier service delivered all parcels on schedule.",["Although","Despite","Even though","Because"],1,"전치사·접속사","빈칸 뒤가 동사 없는 명사구(the severe weather conditions)이므로 전치사 자리입니다. ‘악천후에도 불구하고’라는 양보의 전치사 Despite가 정답입니다. Although·Even though·Because는 접속사라 뒤에 절이 와야 합니다.",{tr:"심한 악천후에도 불구하고 그 국제 택배 회사는 모든 소포를 예정대로 배달했다.",vo:"despite + 명사 ~에도 불구하고 · courier 택배 회사 · on schedule 예정대로"}]);
+G2.push(["The newly renovated auditorium is spacious enough to ------- up to 500 conference attendees.",["accommodate","hesitate","generate","distribute"],0,"어휘","강당이 참석자 500명을 ‘수용하다’라는 의미가 필요합니다. accommodate는 수용 인원을 나타낼 때 쓰는 빈출 타동사입니다. hesitate는 자동사, generate는 ‘창출하다’, distribute는 ‘배포하다’라 문맥에 맞지 않습니다.",{tr:"새로 보수된 강당은 콘퍼런스 참석자를 최대 500명까지 수용할 만큼 넓다.",vo:"accommodate 수용하다 · spacious enough to do ~할 만큼 넓은 · up to 최대 ~까지 · attendee 참석자"}]);
+G2.push(["Please ensure that your travel reimbursement forms are submitted ------- two weeks of returning from the business trip.",["within","along","between","through"],0,"전치사·접속사","기간(two weeks)과 함께 쓰여 ‘~ 이내에’를 나타내는 전치사는 within입니다. within + 기간 + of ~ 형태로 ‘~한 지 2주 이내’라는 뜻이 됩니다.",{tr:"출장에서 돌아온 지 2주 이내에 출장비 환급 신청서를 꼭 제출해 주세요.",vo:"within + 기간 ~ 이내에 · reimbursement 환급, 변제 · ensure that ~을 확실히 하다"}]);
+P2N.push(["Where should I submit the quarterly expense report?",["To the accounting office on the third floor.","Yes, it was quite expensive.","Every Friday afternoon."],0,"Where 질문에 장소(3층 회계부)로 답한 응답이 정답입니다.","의문사",{tr:"분기 경비 보고서는 어디에 제출해야 하나요?",otr:["3층 회계부에요.","네, 꽤 비쌌어요.","매주 금요일 오후에요."],trap:["","Where 질문에 Yes 응답 불가 + expense–expensive 유사 발음 함정","When(시간)을 물을 때의 응답"],tip:"Where는 장소를 묻습니다. 유사 발음 보기와 Yes/No 보기를 먼저 지우세요."}]);
+P2N.push(["Why has the project deadline been postponed?",["At the end of next month.","Because the client requested a few design modifications.","No, I haven't received the mail."],1,"Why 질문에 Because로 이유를 밝힌 응답이 정답입니다.","의문사",{tr:"프로젝트 마감일이 왜 연기되었나요?",otr:["다음 달 말에요.","고객사가 디자인 수정을 몇 가지 요청해서요.","아니요, 우편물을 못 받았어요."],trap:["When(시간)을 물을 때의 응답. deadline에서 시점을 떠올리게 하는 함정","","Why 질문에 No 응답 불가"],tip:"Why는 이유를 묻습니다. Because 외에 To부정사(목적)나 이유를 설명하는 문장도 정답이 됩니다."}]);
+P2N.push(["Who is in charge of organizing the upcoming sales convention?",["Mark from human resources is handling it.","The convention center downtown.","They will charge five dollars."],0,"Who 질문에 사람(인사부 마크)으로 답한 응답이 정답입니다.","의문사",{tr:"다가오는 영업 컨벤션 준비는 누가 맡고 있나요?",otr:["인사부의 마크가 맡고 있어요.","시내 컨벤션 센터요.","그들은 5달러를 청구할 거예요."],trap:["","Where(장소)에 대한 응답 + convention 단어 반복 함정","in charge of의 charge를 ‘요금을 청구하다’로 비튼 동음이의어 함정"],tip:"Who 질문은 사람 이름, 직책, 부서가 정답입니다. 질문 단어를 다른 뜻으로 쓴 보기는 함정입니다."}]);
+
+__snap("bank5_002.js","2026-10-03","학습 기능 업데이트","Part 5 20초 타임어택·해석·어휘, Part 2 소거법 해설, 3D 단어 카드, 3단계 오답노트, 오늘의 4대 루틴");
 /* vocabulary expansion: 800-level words and phrases (sets 11+) */
 V.push(...[
 ["abundant","풍부한"],["accelerate","가속하다, 촉진하다"],["acclaim","찬사; 칭찬하다"],["accompany","동반하다"],["accumulate","축적하다"],["accurately","정확하게"],["acknowledge","인정하다, 수령을 알리다"],["acquisition","인수, 취득"],["adhere to","~을 고수하다, 준수하다"],["adjust","조정하다"],
@@ -2451,6 +2508,114 @@ V.push(...[
 ["supervise","감독하다"],["supplement","보충(하다)"],["surpass","능가하다"],["surveillance","감시"],["suspend","중단하다"],["sustainable","지속 가능한"],["tailor","맞추다"],["tangible","실체적인"],["tariff","관세"],["terminate","종료하다"],
 ["testimonial","추천의 글"],["thorough","철저한"],["timely","시기적절한"],["tolerate","참다"],["transit","운송, 환승"],["transparent","투명한"],["trial","시험, 체험"],["undergo","겪다, 받다"],["undertake","착수하다"],["unprecedented","전례 없는"],
 ["upgrade","개선(하다)"],["utilize","활용하다"],["vacancy","빈자리, 공석"],["venue","장소"],["verify","확인하다"],["viable","실행 가능한"],["visibility","가시성"],["voluntary","자발적인"],["warehouse","창고"],["wholesale","도매(의)"]]);
+/* words from the TOEIC Daily Master spec not yet in the list */
+V.push(["reimbursement","환급, 변제, 상환"]);
+/* card extras for the word list: VX[word]=[품사, 짝꿍 표현, 예문, 예문 해석]. Add more with Object.assign(VX,{...}). */
+Object.assign(VX,{
+"accommodate":["동사","accommodate the growing demand","The newly built hotel can accommodate over 400 guests comfortably.","새로 지은 호텔은 400명 이상의 투숙객을 편안하게 수용할 수 있다."],
+"acquire":["동사","acquire a competitor","Harlow Foods plans to acquire a smaller rival by the end of the year.","할로우 푸드는 연말까지 더 작은 경쟁사를 인수할 계획이다."],
+"adjacent":["형용사","adjacent to the lobby","The meeting room adjacent to the lobby has been reserved for the interviews.","로비 옆 회의실이 면접용으로 예약되었다."],
+"agenda":["명사","the first item on the agenda","The budget review is the first item on the agenda.","예산 검토가 안건의 첫 번째 항목이다."],
+"allocate":["동사","allocate funds for","The city allocated additional funds for road repairs.","시는 도로 보수에 추가 자금을 배정했다."],
+"amenity":["명사","hotel amenities","Guests can enjoy amenities such as a pool and a fitness center.","투숙객은 수영장과 피트니스 센터 같은 편의시설을 이용할 수 있다."],
+"anticipate":["동사","anticipate an increase in","We anticipate an increase in sales during the holiday season.","우리는 연휴 기간에 매출이 늘 것으로 예상한다."],
+"applicant":["명사","qualified applicants","Only qualified applicants will be contacted for an interview.","자격을 갖춘 지원자에게만 면접 연락을 드립니다."],
+"appoint":["동사","be appointed (as) director","Ms. Ruiz was appointed as the new marketing director.","루이즈 씨가 새 마케팅 이사로 임명되었다."],
+"approximately":["부사","approximately 30 minutes","The tour lasts approximately 30 minutes.","투어는 약 30분 걸린다."],
+"attire":["명사","business attire","Business attire is required at the awards dinner.","시상식 만찬에는 비즈니스 정장이 필요하다."],
+"authorize":["동사","authorize a payment","Only the finance manager can authorize payments over $5,000.","5천 달러가 넘는 지급은 재무 관리자만 승인할 수 있다."],
+"available":["형용사","be available for","Mr. Chen is not available for a meeting until Thursday.","첸 씨는 목요일까지 회의할 시간이 없다."],
+"beverage":["명사","food and beverages","Food and beverages are not permitted in the library.","도서관 안에는 음식과 음료를 반입할 수 없다."],
+"brochure":["명사","a product brochure","Please take a product brochure on your way out.","나가실 때 제품 안내 책자를 가져가세요."],
+"budget":["명사","within budget","The renovation was completed on time and within budget.","보수 공사는 제시간에 예산 안에서 끝났다."],
+"candidate":["명사","a candidate for the position","Three candidates for the position will be interviewed on Monday.","그 직책의 후보자 세 명이 월요일에 면접을 본다."],
+"comply with":["동사구","comply with safety regulations","All visitors must comply with the plant's safety regulations.","모든 방문객은 공장의 안전 규정을 준수해야 한다."],
+"complimentary":["형용사","complimentary breakfast","All rooms include a complimentary breakfast.","모든 객실에 무료 조식이 포함된다."],
+"confidential":["형용사","strictly confidential document","All personnel records must be kept in a strictly confidential file.","모든 인사 기록은 엄격한 기밀 문서함에 보관해야 한다."],
+"consecutive":["형용사","for the third consecutive year","The company posted record profits for the third consecutive year.","그 회사는 3년 연속 사상 최대 이익을 냈다."],
+"contract":["명사","sign a contract","Both parties signed the contract on Friday.","양측은 금요일에 계약서에 서명했다."],
+"coordinate":["동사","coordinate with","Please coordinate with the IT team before installing new software.","새 소프트웨어를 설치하기 전에 IT 팀과 조율하세요."],
+"courier":["명사","by courier","The signed documents were sent by courier this morning.","서명된 서류는 오늘 아침 택배로 발송되었다."],
+"defective":["형용사","defective merchandise","Defective merchandise may be returned for a full refund.","결함 있는 상품은 반품하고 전액 환불받을 수 있다."],
+"delegate":["동사","delegate tasks to","Good managers delegate routine tasks to their staff.","좋은 관리자는 일상 업무를 직원에게 위임한다."],
+"deadline":["명사","meet the deadline","The team worked overtime to meet the deadline.","팀은 마감일을 맞추려고 초과 근무를 했다."],
+"dedicated":["형용사","be dedicated to","The firm is dedicated to providing excellent service.","그 회사는 훌륭한 서비스를 제공하는 데 전념한다."],
+"deposit":["명사","a security deposit","A security deposit of one month's rent is required.","한 달 치 임대료의 보증금이 필요하다."],
+"distribute":["동사","distribute handouts to","The speaker distributed handouts to all participants.","발표자는 모든 참가자에게 유인물을 나눠 주었다."],
+"durable":["형용사","durable materials","The backpacks are made from durable, waterproof materials.","그 배낭은 튼튼한 방수 소재로 만들어졌다."],
+"eligible":["형용사","be eligible for a discount","Members are eligible for a 10 percent discount.","회원은 10퍼센트 할인을 받을 자격이 있다."],
+"enclose":["동사","please find enclosed","Please find enclosed a copy of your invoice.","송장 사본을 동봉하오니 확인해 주세요."],
+"endorse":["동사","endorse a proposal","The board endorsed the proposal to open a new branch.","이사회는 새 지점을 여는 제안을 지지했다."],
+"enroll":["동사","enroll in a course","Employees may enroll in the online course free of charge.","직원은 온라인 강좌에 무료로 등록할 수 있다."],
+"estimate":["명사","a cost estimate","The contractor sent us a cost estimate for the repairs.","시공업자가 수리 비용 견적을 보내왔다."],
+"exceed":["동사","exceed expectations","Third-quarter sales exceeded expectations.","3분기 매출이 기대를 넘어섰다."],
+"expedite":["동사","expedite the process","We paid an extra fee to expedite the shipping process.","배송 처리를 앞당기려고 추가 요금을 냈다."],
+"expire":["동사","expire at the end of the month","Your subscription will expire at the end of the month.","구독이 이번 달 말에 만료된다."],
+"feasible":["형용사","economically feasible plan","The engineering team concluded that the proposed schedule is feasible.","엔지니어링 팀은 제안된 일정이 실현 가능하다고 결론 내렸다."],
+"fluctuate":["동사","fluctuate widely","Fuel prices have fluctuated widely this year.","올해 연료 가격이 크게 변동했다."],
+"forward":["동사","forward A to B","Could you forward the e-mail to the rest of the team?","그 이메일을 나머지 팀원에게 전달해 줄 수 있나요?"],
+"headquarters":["명사","corporate headquarters","The corporate headquarters will move to Boston next year.","본사는 내년에 보스턴으로 이전한다."],
+"implement":["동사","implement a new policy","The company will implement a new travel policy in May.","회사는 5월에 새 출장 정책을 시행한다."],
+"inquiry":["명사","an inquiry about","We received several inquiries about the job opening.","채용 공고에 대한 문의를 여러 건 받았다."],
+"inspection":["명사","a safety inspection","The factory will close for a safety inspection on Friday.","공장은 금요일에 안전 점검으로 문을 닫는다."],
+"inventory":["명사","take inventory","The store closes early on Sunday to take inventory.","매장은 재고 조사를 위해 일요일에 일찍 문을 닫는다."],
+"invoice":["명사","an outstanding invoice","Please pay the outstanding invoice within 30 days.","미지불 송장을 30일 안에 결제해 주세요."],
+"itinerary":["명사","a detailed itinerary","Your travel agent will e-mail you a detailed itinerary.","여행사 직원이 자세한 일정표를 이메일로 보낼 것이다."],
+"launch":["동사","launch a new product","The company plans to launch its new tablet in March.","회사는 3월에 새 태블릿을 출시할 계획이다."],
+"lease":["명사","sign a lease","We signed a five-year lease on the office space.","우리는 그 사무실 공간을 5년간 임대하는 계약을 맺었다."],
+"merger":["명사","a merger between A and B","The merger between the two banks was approved last week.","두 은행의 합병이 지난주 승인되었다."],
+"negotiate":["동사","negotiate a contract","Our lawyers are negotiating the contract with the supplier.","우리 변호사들이 공급업체와 계약을 협상하고 있다."],
+"notify":["동사","notify A of B","Please notify the front desk of any changes to your reservation.","예약 변경 사항이 있으면 프런트에 알려 주세요."],
+"obtain":["동사","obtain permission","Visitors must obtain permission before taking photographs.","방문객은 사진을 찍기 전에 허가를 받아야 한다."],
+"occupancy":["명사","occupancy rate","The hotel's occupancy rate rose to 92 percent in July.","7월에 호텔 객실 점유율이 92퍼센트로 올랐다."],
+"outstanding":["형용사","an outstanding balance","Please settle your outstanding balance by Friday.","금요일까지 미지불 잔액을 정산해 주세요."],
+"oversee":["동사","oversee the project","Ms. Patel will oversee the construction project.","파텔 씨가 그 건설 프로젝트를 감독한다."],
+"patron":["명사","library patrons","Library patrons may borrow up to ten books at a time.","도서관 이용자는 한 번에 최대 10권까지 빌릴 수 있다."],
+"payroll":["명사","on the payroll","The company has more than 300 people on the payroll.","그 회사의 급여 명단에는 300명이 넘는 직원이 있다."],
+"periodically":["부사","be updated periodically","The price list is updated periodically.","가격표는 주기적으로 갱신된다."],
+"personnel":["명사","personnel department","Submit the form to the personnel department.","그 양식을 인사부에 제출하세요."],
+"postpone":["동사","postpone A until B","The launch has been postponed until next spring.","출시가 내년 봄으로 연기되었다."],
+"preliminary":["형용사","preliminary results","Preliminary results show a rise in customer satisfaction.","예비 결과에 따르면 고객 만족도가 올랐다."],
+"premises":["명사","on the premises","Smoking is not permitted anywhere on the premises.","구내 어디에서도 흡연할 수 없다."],
+"prerequisite":["명사","a prerequisite for","A teaching certificate is a prerequisite for the position.","교원 자격증은 그 직책의 필수 조건이다."],
+"promptly":["부사","promptly at 9 A.M.","The seminar will begin promptly at 9 A.M.","세미나는 오전 9시 정각에 시작한다."],
+"proficient":["형용사","be proficient in","Applicants must be proficient in Spanish.","지원자는 스페인어에 능숙해야 한다."],
+"projection":["명사","sales projections","Sales projections for next year are encouraging.","내년 매출 전망이 고무적이다."],
+"promote":["동사","be promoted to","Mr. Lee was promoted to senior accountant.","이 씨는 선임 회계사로 승진했다."],
+"proximity":["명사","in close proximity to","The hotel is in close proximity to the airport.","그 호텔은 공항과 아주 가깝다."],
+"qualified":["형용사","be qualified for","She is highly qualified for the role.","그녀는 그 역할에 매우 적합한 자격을 갖췄다."],
+"quote":["명사","get a quote","We got a quote from three moving companies.","이사 업체 세 곳에서 견적을 받았다."],
+"receipt":["명사","upon receipt of","Payment is due upon receipt of the invoice.","송장을 받는 즉시 대금을 지불해야 한다."],
+"recipient":["명사","award recipient","This year's award recipient will give a short speech.","올해 수상자가 짧은 연설을 할 것이다."],
+"refund":["명사","a full refund","Customers can receive a full refund within 30 days.","고객은 30일 안에 전액 환불받을 수 있다."],
+"reimburse":["동사","reimburse A for B","The company will reimburse you for travel expenses.","회사가 출장비를 상환해 줄 것이다."],
+"relocate":["동사","relocate to","The design team will relocate to the fifth floor.","디자인 팀은 5층으로 이전한다."],
+"renovation":["명사","under renovation","The east wing is currently under renovation.","동관은 현재 보수 공사 중이다."],
+"representative":["명사","a sales representative","A sales representative will call you within 24 hours.","영업 담당자가 24시간 안에 전화를 드릴 것이다."],
+"requirement":["명사","meet the requirements","Applicants who meet the requirements will be contacted.","요건을 충족하는 지원자에게 연락이 갈 것이다."],
+"reservation":["명사","make a reservation","I'd like to make a reservation for four people.","네 명 예약하고 싶습니다."],
+"retail":["명사","retail price","The retail price of the camera is $499.","그 카메라의 소매가는 499달러다."],
+"revenue":["명사","generate revenue","Online sales generated most of the company's revenue.","온라인 판매가 회사 수익의 대부분을 창출했다."],
+"revise":["동사","a revised schedule","Please see the revised schedule attached.","첨부된 수정 일정표를 보세요."],
+"routine":["형용사","routine maintenance","The elevator is closed for routine maintenance.","엘리베이터가 정기 점검으로 운행하지 않는다."],
+"shipment":["명사","track a shipment","You can track your shipment on our Web site.","웹사이트에서 배송 현황을 추적할 수 있다."],
+"specification":["명사","according to specifications","The parts were made according to the client's specifications.","부품은 고객의 사양에 따라 제작되었다."],
+"subscription":["명사","renew a subscription","You can renew your subscription online.","구독은 온라인으로 갱신할 수 있다."],
+"substantial":["형용사","a substantial increase","There has been a substantial increase in online orders.","온라인 주문이 상당히 늘었다."],
+"supervisor":["명사","report to a supervisor","Report any accidents to your supervisor immediately.","사고는 즉시 관리자에게 보고하세요."],
+"supplier":["명사","switch suppliers","The restaurant switched suppliers to cut costs.","식당은 비용을 줄이려고 공급업체를 바꿨다."],
+"tentative":["형용사","a tentative schedule","Here is a tentative schedule for the conference.","콘퍼런스 잠정 일정표입니다."],
+"transaction":["명사","complete a transaction","You will receive a receipt once the transaction is complete.","거래가 완료되면 영수증을 받게 된다."],
+"transfer":["동사","be transferred to","Ms. Okafor was transferred to the Singapore office.","오카포 씨는 싱가포르 지사로 전근되었다."],
+"unanimous":["형용사","a unanimous decision","The committee reached a unanimous decision.","위원회는 만장일치로 결정했다."],
+"upcoming":["형용사","the upcoming conference","Registration for the upcoming conference closes on Friday.","다가오는 콘퍼런스 등록은 금요일에 마감된다."],
+"valid":["형용사","valid for 30 days","This coupon is valid for 30 days from the date of issue.","이 쿠폰은 발행일로부터 30일간 유효하다."],
+"vendor":["명사","an approved vendor","Supplies must be ordered from an approved vendor.","비품은 승인된 판매업체에서 주문해야 한다."],
+"warranty":["명사","under warranty","The printer is still under warranty, so repairs are free.","프린터가 아직 보증 기간이라 수리가 무료다."],
+"reimbursement":["명사","submit an expense reimbursement form","Employees must submit receipts to receive reimbursement for travel costs.","직원은 출장비를 환급받으려면 영수증을 제출해야 한다."],
+"reluctant":["형용사","be reluctant to do","The board members were reluctant to approve the high-risk expansion plan.","이사들은 위험 부담이 큰 확장 계획을 승인하기를 주저했다."],
+"mandatory":["형용사","mandatory training session","Attendance at the safety seminar is mandatory for all factory workers.","안전 세미나 참석은 모든 공장 근로자에게 의무다."]
+});
 /* ================= Part 1 cartoon illustrations (inline SVG, drawn from simple parts) ================= */
 const ART=(()=>{
 const SK='#F2C9A0',HR='#3B2F2F',PT='#3A4A6B',WD='#B98552',WD2='#8C5E34',MT='#8A94A6',DK='#2E3440';
@@ -2591,7 +2756,7 @@ const TIMES={800:['LC 약 45분','','','','9분','7분','59분'],700:['LC 약 45
 const PARTS=[["Part 1","사진 묘사",6],["Part 2","질의 응답",25],["Part 3","짧은 대화",39],["Part 4","짧은 담화",30],["Part 5","단문 빈칸",30],["Part 6","장문 빈칸",16],["Part 7","독해",54]];
 
 /* ================= state ================= */
-function BLANK(){return {v:2,goal:800,done:{},known:{},gram:[],gstat:{},gwrong:{},p2:[],p2wrong:{},rd:[],rdwrong:{},vt:[],scores:[],runs:{},seen:{},dw:{},pstat:{},dr:[],updatedAt:0};}
+function BLANK(){return {v:2,goal:800,done:{},known:{},gram:[],gstat:{},gwrong:{},p2:[],p2wrong:{},rd:[],rdwrong:{},vt:[],scores:[],runs:{},seen:{},dw:{},pstat:{},dr:[],act:{},mst:0,updatedAt:0};}
 function normalize(o){const b=BLANK();o=(o&&typeof o==='object')?o:{};for(const k in b){const v=o[k];if(v!==undefined&&v!==null&&typeof v===typeof b[k]&&Array.isArray(v)===Array.isArray(b[k]))b[k]=v;}if(b.goal!==700&&b.goal!==800)b.goal=800;
   for(const k of ['gram','p2','rd','vt','dr'])b[k]=b[k].filter(x=>x&&typeof x==='object').map(x=>({...x,d:fixD(x.d)}));
   b.scores=b.scores.filter(x=>x&&typeof x==='object'&&/^\d{4}-\d{2}-\d{2}$/.test(x.d)&&(x.k==='full'||x.k==='half'));
@@ -2602,7 +2767,7 @@ function fixD(d){if(typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d))return d;
 function hasProgress(s){return Object.keys(s.done).length||Object.keys(s.known).length||s.gram.length||s.p2.length||s.rd.length||s.scores.length||s.vt.length||Object.keys(s.runs).length;}
 let S=BLANK();
 try{const r=localStorage.getItem(LKEY);if(r)S=normalize(JSON.parse(r));}catch(e){}
-function trim(){for(const k of ['gram','p2','rd','vt','dr'])if(S[k].length>80)S[k]=S[k].slice(-80);if(S.scores.length>120)S.scores=S.scores.slice(-120);}
+function trim(){{const ks=Object.keys(S.act).sort();ks.slice(0,Math.max(0,ks.length-60)).forEach(k=>delete S.act[k]);}for(const k of ['gram','p2','rd','vt','dr'])if(S[k].length>80)S[k]=S[k].slice(-80);if(S.scores.length>120)S.scores=S.scores.slice(-120);}
 function save(){S.updatedAt=Date.now();trim();try{localStorage.setItem(LKEY,JSON.stringify(S));}catch(e){}cloudQueue();}
 
 /* ================= cloud sync (claude.ai db) ================= */
@@ -2714,7 +2879,7 @@ function renderToday(){
   $('#tWeak').innerHTML=html+'</p>';
   const wp=weakPart();if(wp&&wp.r<0.8)$('#tWeak').innerHTML+=`<p style="margin:6px 0 0">문제 풀기 기록으로는 <b>${PNAME[wp.p]}</b> 정답률이 ${Math.round(wp.r*100)}%로 가장 낮습니다. 시간이 남으면 ‘문제 풀기 → 파트별 연습’에서 이 파트를 한 세트 더 푸세요.</p>`;
   if(tm.day!==n)resetTimer();
-  renderRail();}
+  renderDash();renderRail();}
 $('#tDone').onclick=()=>{S.done[selDay]=!S.done[selDay];save();renderToday();};
 $('#tPrev').onclick=()=>{if(selDay>1){selDay--;renderToday();}};
 $('#tNextD').onclick=()=>{if(selDay<TOTAL){selDay++;renderToday();}};
@@ -2804,15 +2969,11 @@ function vStart(){
 function vSetBtns(){
   $('#vSet').innerHTML=Array.from({length:NSET},(_,k)=>`<button data-s="${k+1}" aria-pressed="${k+1===vs.set}">${k+1}</button>`).join('')+`<button data-s="0" aria-pressed="${vs.set===0}">다시 볼 단어</button>`;
   $$('#vSet button').forEach(b=>b.onclick=()=>{vs.set=+b.dataset.s;vSetBtns();vStart();});}
-function vDraw(){const w=vs.q[vs.i];
-  if(!w){vs.done=true;$('#vW').textContent=vs.set===0&&!vSetWords().length?'다시 볼 단어가 없어요':'한 바퀴 끝';$('#vM').hidden=true;$('#vHint').textContent='눌러서 처음부터 다시';$('#vCount').textContent='';}
-  else{vs.done=false;$('#vW').textContent=w[0];$('#vM').textContent=w[1];$('#vM').hidden=!vs.flip;$('#vHint').textContent=vs.flip?'':'눌러서 뜻 보기';$('#vCount').textContent=`${vs.i+1} / ${vs.q.length}`;}
-  $('#vKnow').disabled=$('#vAgain').disabled=!w;}
 function vChips(){const all=vSetWords();
   $('#vChips').innerHTML=all.length?all.map(x=>`<span class="chip ${S.known[x[0]]===true?'k':S.known[x[0]]===false?'u':''}" title="${esc(x[1])}">${esc(x[0])}</span>`).join(''):'<span class="muted small">‘다시 볼래요’를 누르거나 테스트에서 틀린 단어가 여기에 모입니다.</span>';}
 $('#vCard').onclick=()=>{if(vs.done){vs.q=vSetWords().slice();vs.i=0;vs.flip=false;vDraw();return;}vs.flip=!vs.flip;vDraw();};
-$('#vKnow').onclick=()=>{const w=vs.q[vs.i];if(!w)return;S.known[w[0]]=true;save();vs.i++;vs.flip=false;vDraw();vChips();};
-$('#vAgain').onclick=()=>{const w=vs.q[vs.i];if(!w)return;S.known[w[0]]=false;save();vs.q.push(w);vs.i++;vs.flip=false;vDraw();vChips();};
+$('#vKnow').onclick=()=>{const w=vs.q[vs.i];if(!w)return;S.known[w[0]]=true;actAdd('v');save();vs.i++;vs.flip=false;vDraw();vChips();};
+$('#vAgain').onclick=()=>{const w=vs.q[vs.i];if(!w)return;S.known[w[0]]=false;actAdd('v');save();vs.q.push(w);vs.i++;vs.flip=false;vDraw();vChips();};
 $$('#vMode button').forEach(b=>b.onclick=()=>{vs.mode=b.dataset.m;vStart();});
 const vq=Quiz($('#vTestBox'),{empty:'이 목록에는 단어가 없습니다. 다른 세트를 고르세요.',
   onAnswer:(it,ok)=>{S.known[it.w]=ok;save();vChips();},
@@ -2872,17 +3033,19 @@ document.addEventListener('keydown',e=>{
 /* ================= drill: daily problem sets from the in-app bank ================= */
 const PNAME={1:'Part 1 사진 묘사',2:'Part 2 질의 응답',3:'Part 3 짧은 대화',4:'Part 4 짧은 담화',5:'Part 5 단문 빈칸',6:'Part 6 장문 빈칸',7:'Part 7 독해'};
 const U=[],UM={};
-function addU(u){u.qs.forEach((q,k)=>{q.id=u.id+'.'+k;q.u=u.id;});U.push(u);UM[u.id]=u;}
+/* optional extras (translation, traps, evidence): a trailing {...} on an item, or EX["<id>"] added later */
+function xo(a,i){const o=a[i];return o&&typeof o==='object'&&!Array.isArray(o)?o:null;}
+function addU(u){u.qs.forEach((q,k)=>{q.id=u.id+'.'+k;q.u=u.id;q.x=Object.assign({},q.x,u.qs.length===1?EX[u.id]:null,EX[q.id]);});U.push(u);UM[u.id]=u;}
 P1B.forEach((x,k)=>addU({id:'a'+k,part:1,tag:'사진',scene:x[0],art:k,qs:[{q:'사진을 가장 잘 묘사한 문장을 고르세요.',opts:x[1],a:x[2],exp:x[3]}]}));
 P2.forEach((x,k)=>addU({id:'p'+k,part:2,tag:P2TAG[k],qs:[{q:x[0],opts:x[1],a:x[2],exp:x[3]}]}));
-P2N.forEach((x,k)=>addU({id:'b'+k,part:2,tag:x[4],qs:[{q:x[0],opts:x[1],a:x[2],exp:x[3]}]}));
-P3B.forEach((x,k)=>addU({id:'c'+k,part:3,tag:x.tag,script:x.s,visual:x.v,qs:x.q.map(q=>({q:q[0],opts:q[1],a:q[2],exp:q[3]}))}));
-P4B.forEach((x,k)=>addU({id:'d'+k,part:4,tag:x.tag,script:x.s,visual:x.v,qs:x.q.map(q=>({q:q[0],opts:q[1],a:q[2],exp:q[3]}))}));
+P2N.forEach((x,k)=>addU({id:'b'+k,part:2,tag:x[4],qs:[{q:x[0],opts:x[1],a:x[2],exp:x[3],x:xo(x,5)}]}));
+P3B.forEach((x,k)=>addU({id:'c'+k,part:3,tag:x.tag,script:x.s,visual:x.v,qs:x.q.map(q=>({q:q[0],opts:q[1],a:q[2],exp:q[3],x:xo(q,4)}))}));
+P4B.forEach((x,k)=>addU({id:'d'+k,part:4,tag:x.tag,script:x.s,visual:x.v,qs:x.q.map(q=>({q:q[0],opts:q[1],a:q[2],exp:q[3],x:xo(q,4)}))}));
 G.forEach((x,k)=>addU({id:'g'+k,part:5,tag:x[3],qs:[{q:x[0],opts:x[1],a:x[2],exp:x[4],tag:x[3]}]}));
-G2.forEach((x,k)=>addU({id:'q'+k,part:5,tag:x[3],qs:[{q:x[0],opts:x[1],a:x[2],exp:x[4],tag:x[3]}]}));
-P6B.forEach((x,k)=>addU({id:'e'+k,part:6,tag:'장문',ptitle:x.t,passage:x.p,qs:x.q.map((q,i)=>({q:`빈칸 (${i+1})에 들어갈 가장 알맞은 것은?`,opts:q[0],a:q[1],tag:q[2],exp:q[3]}))}));
+G2.forEach((x,k)=>addU({id:'q'+k,part:5,tag:x[3],qs:[{q:x[0],opts:x[1],a:x[2],exp:x[4],tag:x[3],x:xo(x,5)}]}));
+P6B.forEach((x,k)=>addU({id:'e'+k,part:6,tag:'장문',ptitle:x.t,passage:x.p,qs:x.q.map((q,i)=>({q:`빈칸 (${i+1})에 들어갈 가장 알맞은 것은?`,opts:q[0],a:q[1],tag:q[2],exp:q[3],x:xo(q,4)}))}));
 RD.forEach((x,k)=>addU({id:'r'+k,part:7,tag:/문자/.test(x.t)?'chat':'single',ptitle:x.t,passage:x.p,qs:x.q.map(q=>({q:q[0],opts:q[1],a:q[2],tag:q[3],exp:q[4]}))}));
-RD2.forEach((x,k)=>addU({id:'f'+k,part:7,tag:x.k,ptitle:x.t,passage:x.p,qs:x.q.map(q=>({q:q[0],opts:q[1],a:q[2],tag:q[3],exp:q[4]}))}));
+RD2.forEach((x,k)=>addU({id:'f'+k,part:7,tag:x.k,ptitle:x.t,passage:x.p,qs:x.q.map(q=>({q:q[0],opts:q[1],a:q[2],tag:q[3],exp:q[4],x:xo(q,5)}))}));
 const BANKN=U.reduce((a,u)=>a+u.qs.length,0);
 
 /* deterministic shuffles so a question looks the same on every device */
@@ -2894,7 +3057,7 @@ function qView(q){if(q._v)return q._v;let idx=q.opts.map((_,i)=>i);
   if(!q.opts.every(o=>/^\[\d\]$/.test(o)))idx=sshuffle(idx,hsh(q.id));
   const re=c=>{const ni=idx.indexOf('ABCD'.indexOf(c));return ni<0?c:LET[ni];};
   const exp=q.exp.replace(/\(([A-D])\)/g,(m,c)=>'('+re(c)+')').replace(/(^|[^A-Za-z(])([A-D])는/g,(m,p,c)=>p+re(c)+'는');
-  return q._v={opts:idx.map(i=>q.opts[i]),a:idx.indexOf(q.a),exp};}
+  return q._v={opts:idx.map(i=>q.opts[i]),a:idx.indexOf(q.a),exp,idx};}
 
 /* ---------- day specs: [part, units, filter, mode] ---------- */
 const LCH=[[1,4],[2,15],[3,6],[4,5]],RCH=[[5,20],[6,3],[7,4,'single'],[7,1,'double']];
@@ -3017,7 +3180,7 @@ function mmss(s){return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%
 function dClock(){const r=S.runs[dKey()];const el=$('#dClock');if(!el)return;
   if(!r){el.textContent='';return;}const lim=dLimit();
   el.textContent=`${mmss(r.t||0)}${lim?` / ${lim}분`:''}`;el.classList.toggle('over',!!lim&&r.t>lim*60&&!r.fin);}
-setInterval(()=>{if(view!=='drill'||document.hidden)return;const r=S.runs[dKey()];if(!r||r.fin||!r.u.length)return;r.t=(r.t||0)+1;dClock();},1000);
+setInterval(()=>{if(view!=='drill'||document.hidden)return;const r=S.runs[dKey()];if(!r||r.fin||!r.u.length)return;r.t=(r.t||0)+1;dClock();p5Tick(r);},1000);
 function dModeBtns(){const k=dKey();
   $$('#dMode button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m==='day'?k[0]==='d':b.dataset.m===k));}
 function renderDrill(auto){
@@ -3027,8 +3190,9 @@ function renderDrill(auto){
   if(isDay){$('#dEyebrow').textContent=`DAY ${n} / ${TOTAL}${n===dayNow?' · 오늘':''} · ${fmt(dateOf(n))}`;$('#dTitle').textContent=PLAN[n-1][0];
     $('#dPrev').disabled=n<=1;$('#dNext').disabled=n>=TOTAL;}
   else if(k==='more'){const b=(S.runs.more||{}).base||selDay;$('#dEyebrow').textContent=`DAY ${b} · 같은 유형 추가 세트`;$('#dTitle').textContent=PLAN[b-1][0]+' · 한 세트 더';}
-  else{$('#dEyebrow').textContent=k==='free'?'원하는 파트만 골라서':'틀린 문제만 모아서';$('#dTitle').textContent=k==='free'?'파트별 연습':'오답 복습';}
+  else{$('#dEyebrow').textContent=k==='free'?'원하는 파트만 골라서':'틀린 문제만 모아서';$('#dTitle').textContent=k==='free'?'파트별 연습':'오답노트';}
   const r=S.runs[k];
+  if(k==='wrong'&&(dr.noteView||!r)){drawNote();return;}
   if(!r&&isDay){const sp=DS[n-1],lc=sp.it.some(x=>x[0]>=1&&x[0]<=4);
     $('#dLede').textContent=PLAN[n-1][1];$('#dProg').style.width='0';dClock();
     $('#dBox').innerHTML=`<div class="quiz"><div class="lab">이날 문제</div><p style="margin:0">${esc(specText(sp.it))}</p><p class="small muted" style="margin:0">목표 시간 ${sp.lim}분${lc?' · 듣기 문제는 폰의 영어 음성으로 읽어 줍니다. 이어폰을 준비하세요.':''}${MOCKDAY[n]?' · 다 풀면 점수가 ‘모의고사 점수’에 자동 기록됩니다.':''}</p><div class="row"><button class="btn primary" id="dStart">시작</button></div></div>`;
@@ -3046,35 +3210,42 @@ function drawUnit(r,u,auto){
   const graded=u.qs.every(q=>q.id in r.sel),audio=u.part<=4,textMode=!TTS.ok||dr.text[u.id]||graded;
   const hideLC=(u.part===1||u.part===2)&&!textMode;
   let h=`<div class="quiz"><div class="row between"><span class="pill">${esc(PNAME[u.part])}</span><span class="kbd">${r.pos+1}/${r.u.length} 묶음 · 문항 ${first}${u.qs.length>1?'–'+(first+u.qs.length-1):''} / ${qs.length}</span></div>`;
-  if(audio)h+=`<div class="audio">${TTS.ok?`<button class="btn primary sm" id="auPlay">▶ 듣기</button><span class="seg" id="auRate">${[0.8,0.9,1,1.1].map(x=>`<button data-r="${x}" aria-pressed="${TTS.rate===x}">${x}×</button>`).join('')}</span>`:'<span class="small muted">이 기기에서는 영어 음성을 쓸 수 없어 스크립트로 풉니다.</span>'}${TTS.ok&&!graded&&(u.part<=2)?`<button class="btn sm" id="auText">${dr.text[u.id]?'글자 숨기기':'글자로 보기'}</button>`:''}${TTS.ok&&!graded&&u.part>=3?`<button class="btn sm" id="auText">${dr.text[u.id]?'스크립트 숨기기':'스크립트 보기'}</button>`:''}</div>`;
+  if(u.part===5&&!graded){if(P5T.on){if(!dr.p5||dr.p5.id!==u.id)dr.p5={id:u.id,left:P5T.lim};const l=Math.max(0,dr.p5.left);
+      h+=`<div class="tatk"><div class="tbar"><i id="p5Bar" style="width:${l/P5T.lim*100}%"></i></div><span id="p5Left" class="kbd ${l<=5?'over':''}">${l}초</span><button class="btn sm" id="p5T">타이머 끄기</button></div>`;}
+    else h+=`<div class="row"><button class="btn sm" id="p5T">⏱ 20초 타임어택 켜기</button><span class="small muted">보기의 품사·어형부터 훑고 빈칸 앞뒤만 보세요.</span></div>`;}
+  else if(dr.p5&&dr.p5.id===u.id)dr.p5=null;
+  if(audio)h+=`<div class="audio">${TTS.ok?`<button class="btn primary sm" id="auPlay">▶ 듣기</button><span class="seg" id="auRate">${[0.8,0.9,1,1.15].map(x=>`<button data-r="${x}" aria-pressed="${TTS.rate===x}">${x}×</button>`).join('')}</span>`:'<span class="small muted">이 기기에서는 영어 음성을 쓸 수 없어 스크립트로 풉니다.</span>'}${TTS.ok&&!graded&&(u.part<=2)?`<button class="btn sm" id="auText">${dr.text[u.id]?'글자 숨기기':'글자로 보기'}</button>`:''}${TTS.ok&&!graded&&u.part>=3?`<button class="btn sm" id="auText">${dr.text[u.id]?'스크립트 숨기기':'스크립트 보기'}</button>`:''}</div>`;
   if(u.scene){const art=u.art!=null?ART(u.art):'',cap=!art||graded||dr.cap[u.id];
     h+=`<div class="scene">${art}${cap?`<p>${esc(u.scene)}</p>`:`<button class="btn sm" id="capBtn" style="margin-top:8px">그림이 헷갈리면 장면 설명 보기</button>`}</div>`;}
   if(u.visual)h+=`<pre class="passage visual">${esc(u.visual)}</pre>`;
-  if(u.passage)h+=`<div><div class="lab" style="margin-bottom:6px">${esc(u.ptitle||'')}</div><div class="passage">${fmtPassage(u.passage)}</div></div>`;
+  if(u.passage)h+=`<div><div class="lab" style="margin-bottom:6px">${esc(u.ptitle||'')}</div><div class="passage">${graded?markEv(fmtPassage(u.passage),u):fmtPassage(u.passage)}</div></div>`;
   if(audio&&(u.part>=3?(dr.text[u.id]||!TTS.ok)&&!graded:false))h+=`<div class="passage">${esc(unitScript(u))}</div>`;
   u.qs.forEach((q,i)=>{const vw=v[i],sel=r.sel[q.id],pk=dr.tmp[q.id],g=sel!==undefined;
     const qt=u.part===2&&hideLC?'질문과 응답을 듣고 가장 알맞은 응답을 고르세요.':q.q;
     h+=`<div class="qq"><div class="row between"><div class="q"><span class="kbd">${first+i}.</span> ${esc(qt).replace(/\n/g,'<br>')}</div>${q.tag?`<span class="pill g">${esc(q.tag)}</span>`:''}</div><div class="opts">${vw.opts.map((op,j)=>{
       const cls=g?(j===vw.a?'right':j===sel?'wrong':''):(j===pk?'pick':'');
       return `<button class="opt ${cls}" data-q="${q.id}" data-j="${j}" ${g?'disabled':''}><span class="b">${LET[j]}</span><span>${hideLC?'<span class="muted">듣고 고르기</span>':esc(op)}</span></button>`;}).join('')}</div>
-      ${g?`<div class="explain ${sel===vw.a?'':'bad'}"><b>${sel===vw.a?'정답':'오답 · 정답은 '+LET[vw.a]}</b><br>${esc(vw.exp)}</div>`:''}</div>`;});
-  if(graded&&audio)h+=`<details open><summary>스크립트</summary><div class="passage" style="margin-top:8px">${esc(unitScript(u))}</div></details>`;
+      ${g?explainHtml(r,u,q,vw,sel):''}</div>`;});
+  if(graded&&audio)h+=`<details open><summary>스크립트</summary><div class="passage" style="margin-top:8px">${markEv(esc(unitScript(u)),u)}</div></details>`;
   if(!graded&&u.qs.length>1)h+=`<p class="small muted" style="margin:0">${u.qs.length}문제를 모두 고르면 채점됩니다. 고르기 전엔 바꿀 수 있어요.</p>`;
-  if(graded)h+=`<div class="row"><button class="btn primary" id="dNextU">${r.pos+1<r.u.length?'다음':'결과 보기'}</button></div>`;
+  if(graded)h+=`<div class="row"><button class="btn primary" id="dNextU">${r.pos+1<r.u.length?'다음':'결과 보기'}</button>${u.part===2&&TTS.ok?'<button class="btn" id="shadow">🔁 질문+정답 따라 읽기</button>':''}</div>`;
   $('#dBox').innerHTML=h+'</div>';
   $$('#dBox .opt').forEach(b=>b.onclick=()=>dPick(r,u,b.dataset.q,+b.dataset.j));
   const pl=$('#auPlay');if(pl)pl.onclick=()=>{if(TTS.on)ttsStop();else ttsPlay(unitAudio(u));};
   $$('#auRate button').forEach(b=>b.onclick=()=>{TTS.rate=+b.dataset.r;try{localStorage.setItem('toeic-rate',TTS.rate);}catch(e){}$$('#auRate button').forEach(x=>x.setAttribute('aria-pressed',x===b));});
   const cb=$('#capBtn');if(cb)cb.onclick=()=>{dr.cap[u.id]=1;drawUnit(r,u,false);if(TTS.on)ttsBtn();};
   const tx=$('#auText');if(tx)tx.onclick=()=>{dr.text[u.id]=!dr.text[u.id];const on=TTS.on;drawUnit(r,u,false);if(on)ttsBtn();};
+  const pt=$('#p5T');if(pt)pt.onclick=()=>{P5T.on=!P5T.on;try{localStorage.setItem('toeic-p5t',P5T.on?'1':'0');}catch(e){}dr.p5=null;drawUnit(r,u,false);};
+  const sh=$('#shadow');if(sh)sh.onclick=()=>{const a=hsh(u.id)%2?'M':'W',v0=v[0];ttsPlay([[a,u.qs[0].q],[a==='M'?'W':'M',v0.opts[v0.a]]]);};
+  $$('#dBox [data-master]').forEach(b=>b.onclick=()=>{masterQ(b.dataset.master);drawUnit(r,u,false);});
   const nx=$('#dNextU');if(nx)nx.onclick=()=>{ttsStop();r.pos++;if(r.pos>=r.u.length)dFinish(r);save();renderDrill(true);$('main').scrollTop=0;};
   if(auto&&audio&&TTS.ok&&!graded)ttsPlay(unitAudio(u));}
 function dPick(r,u,qid,j){if(qid in r.sel)return;dr.tmp[qid]=j;
   if(!u.qs.every(q=>q.id in dr.tmp)){drawUnit(r,u,false);return;}
   ttsStop();
   u.qs.forEach(q=>{const s=dr.tmp[q.id],ok=s===qView(q).a;r.sel[q.id]=s;delete dr.tmp[q.id];
-    if(ok)delete S.dw[q.id];else S.dw[q.id]=1;
-    const p=u.part;S.pstat[p]=S.pstat[p]||{r:0,n:0};S.pstat[p].n++;if(ok)S.pstat[p].r++;
+    const was=S.dw[q.id],p=u.part;if(ok){if(was)S.dw[q.id]=2;}else S.dw[q.id]=1;
+    if(was||dKey()==='wrong')actAdd('w');if(p===5)actAdd('p5');if(p===2)actAdd('p2');S.pstat[p]=S.pstat[p]||{r:0,n:0};S.pstat[p].n++;if(ok)S.pstat[p].r++;
     if(p===5&&GTYPES.includes(u.tag)){S.gstat[u.tag]=S.gstat[u.tag]||{r:0,n:0};S.gstat[u.tag].n++;if(ok)S.gstat[u.tag].r++;}
     if(u.id[0]==='g'){const gi=+u.id.slice(1);if(ok)delete S.gwrong[gi];else S.gwrong[gi]=true;}
     if(u.id[0]==='p'){const pi=+u.id.slice(1);if(ok)delete S.p2wrong[pi];else S.p2wrong[pi]=true;}
@@ -3096,26 +3267,131 @@ function drawResult(r){
   const PACE={5:20,6:30,7:60},pc=[];
   for(const p of [5,6,7]){let t=0,q=0;r.u.forEach(id=>{const u=UM[id];if(u&&u.part===p&&r.ut&&r.ut[id]!=null){t+=r.ut[id];q+=u.qs.length;}});
     if(q)pc.push(`Part ${p} 문항당 ${Math.round(t/q)}초 (목표 ${PACE[p]}초 ${t/q<=PACE[p]?'✓':'· 더 빠르게'})`);}
+  const to=r.to?Object.keys(r.to).length:0;if(to)pc.push(`20초 초과 ${to}문항`);
   const lim=dLimit();
   const wr=runQs(r).filter(q=>r.sel[q.id]!==qView(q).a);
   $('#dBox').innerHTML=`<div class="quiz"><div class="row between"><div class="stat"><b>${sc.c} / ${sc.n}</b><span>정답률 ${Math.round(pct*100)}% · 걸린 시간 ${mmss(r.t||0)}${lim?` (목표 ${lim}분)`:''}</span></div></div>
     <div style="display:flex;flex-direction:column;gap:8px">${rows}</div>${pc.length?`<p class="small muted" style="margin:0">풀이 속도 · ${pc.join(' · ')}</p>`:''}<p style="margin:0">${esc(msg)}</p>
-    <div class="row">${n?`<button class="btn primary" id="dDone">${S.done[n]?'완료 표시됨 ✓':'이날 학습 완료로 표시'}</button>`:''}${n||k==='more'?'<button class="btn primary" id="dMore">한 세트 더 (같은 유형)</button>':''}<button class="btn" id="dAgain">처음부터 다시 풀기</button>${wr.length?`<button class="btn" id="dWrong">오답 복습 (${Object.keys(S.dw).length})</button>`:''}</div>
+    <div class="row">${n?`<button class="btn primary" id="dDone">${S.done[n]?'완료 표시됨 ✓':'이날 학습 완료로 표시'}</button>`:''}${n||k==='more'?'<button class="btn primary" id="dMore">한 세트 더 (같은 유형)</button>':''}<button class="btn" id="dAgain">처음부터 다시 풀기</button>${wr.length?`<button class="btn" id="dWrong">오답노트 (${Object.keys(S.dw).length})</button>`:''}</div>
     ${wr.length?`<div><div class="lab" style="margin:6px 0">이번에 틀린 문제 ${wr.length}개</div>${wr.map(q=>{const vw=qView(q),u=UM[q.u];return `<details><summary><span class="pill" style="margin-right:8px">Part ${u.part}</span>${esc((u.part===1?u.scene:q.q).split('\n')[0])}</summary><p class="small muted">${vw.opts.map((op,j)=>`${LET[j]}. ${esc(op)}`).join(' &nbsp;/&nbsp; ')}</p><p><b>정답 ${LET[vw.a]}. ${esc(vw.opts[vw.a])}</b></p><p class="muted">${esc(vw.exp)}</p></details>`;}).join('')}</div>`:''}</div>`;
   const dd=$('#dDone');if(dd)dd.onclick=()=>{S.done[n]=true;save();renderRail();dd.textContent='완료 표시됨 ✓';};
   $('#dAgain').onclick=()=>{r.pos=0;r.sel={};r.t=0;r.fin=false;dr.tmp={};save();renderDrill(true);};
-  const dw=$('#dWrong');if(dw)dw.onclick=()=>dStartWrong();
+  const dw=$('#dWrong');if(dw)dw.onclick=()=>{dr.key='wrong';dr.noteView=true;renderDrill(false);$('main').scrollTop=0;};
   const dm=$('#dMore');if(dm)dm.onclick=()=>{const b=k==='more'?r.base:n;let it=DS[b-1].it.filter(x=>typeof x[0]==='number');if(!it.length)it=[['wrong',20]];
     S.runs.more=buildRun(it,'more'+Date.now(),0);S.runs.more.base=b;S.runs.more.note='안 푼 문제부터 같은 유형으로';dr.key='more';save();renderDrill(true);$('main').scrollTop=0;};}
-function dStartWrong(){dr.key='wrong';const us=U.filter(unitWrong).sort((a,b)=>a.part-b.part).slice(0,30);
+function wStage(u){return Math.min(...u.qs.filter(q=>S.dw[q.id]).map(q=>S.dw[q.id]));}
+function dStartWrong(){dr.key='wrong';dr.noteView=false;const us=U.filter(unitWrong).sort((a,b)=>wStage(a)-wStage(b)||a.part-b.part).slice(0,30);
   S.runs.wrong=us.length?{u:us.map(u=>u.id),pos:0,sel:{},t:0,fin:false,note:`틀린 문제 ${us.length}묶음`}:null;if(!us.length)delete S.runs.wrong;save();renderDrill(true);}
 const FREEN={1:8,2:15,3:4,4:4,5:20,6:3,7:4};
 $('#dPick').innerHTML=[1,2,3,4,5,6,7].map(p=>`<button data-p="${p}">Part ${p}</button>`).join('');
 $$('#dPick button').forEach(b=>b.onclick=()=>{const p=+b.dataset.p;S.runs.free=buildRun([[p,FREEN[p]]],'free'+Date.now());S.runs.free.note=PNAME[p];save();$$('#dPick button').forEach(x=>x.setAttribute('aria-pressed',x===b));renderDrill(true);});
-$$('#dMode button').forEach(b=>b.onclick=()=>{const m=b.dataset.m;if(m==='day')dr.key=null;else if(m==='wrong'){dStartWrong();return;}else dr.key=m;renderDrill(false);});
+$$('#dMode button').forEach(b=>b.onclick=()=>{const m=b.dataset.m;if(m==='day')dr.key=null;else if(m==='wrong'){dr.key='wrong';dr.noteView=true;}else dr.key=m;renderDrill(false);});
 $('#dPrev').onclick=()=>{if(selDay>1){selDay--;renderDrill(false);}};
 $('#dNext').onclick=()=>{if(selDay<TOTAL){selDay++;renderDrill(false);}};
 function openDrill(n){selDay=n;dr.key=null;go('drill');}
+
+/* ---------- Part 5 time attack (20 s per question; pauses with the run clock) ---------- */
+const P5T={on:true,lim:20};try{P5T.on=localStorage.getItem('toeic-p5t')!=='0';}catch(e){}
+function p5Tick(r){const d=dr.p5;if(!d||r.u[r.pos]!==d.id)return;const u=UM[d.id];
+  if(u.qs.every(q=>q.id in r.sel)){dr.p5=null;return;}
+  d.left--;const b=$('#p5Bar'),l=$('#p5Left');
+  if(b)b.style.width=Math.max(0,d.left/P5T.lim*100)+'%';if(l){l.textContent=Math.max(0,d.left)+'초';l.classList.toggle('over',d.left<=5);}
+  if(d.left<=0){dr.p5=null;r.to=r.to||{};u.qs.forEach(q=>{r.to[q.id]=1;dr.tmp[q.id]=-1;});dPick(r,u,u.qs[0].id,-1);}}
+
+/* ---------- explanations: translation, vocab, Part 2 elimination, evidence highlight ---------- */
+function evList(x){return !x||!x.ev?[]:Array.isArray(x.ev)?x.ev:[x.ev];}
+function markEv(html,u){const ev=[];u.qs.forEach(q=>evList(q.x).forEach(e=>ev.push(e)));
+  ev.forEach(e=>{const h=esc(e);if(h&&html.includes(h))html=html.split(h).join(`<mark>${h}</mark>`);});return html;}
+const WHRE=/^(who|whom|whose|what|when|where|why|how|which)\b/i;
+const STOPW=new Set("about after again also been before being could does doing from have here just more only other over should some than that their them then there these they this those very were what when where which while will with would your yours".split(' '));
+function autoTrap(q,o){const r=[];
+  if(WHRE.test(q.trim())&&/^(yes|no)\b/i.test(o.trim()))r.push('의문사 의문문에는 Yes/No로 답할 수 없음');
+  const ws=t=>(t.toLowerCase().match(/[a-z']{4,}/g)||[]).filter(w=>!STOPW.has(w));const qw=ws(q);
+  const hit=ws(o).find(w=>qw.some(x=>x===w||x.startsWith(w)||w.startsWith(x)||(x.slice(0,5)===w.slice(0,5)&&Math.min(x.length,w.length)>=6)));
+  if(hit)r.push(`질문의 단어를 반복하거나 비슷한 소리(‘${hit}’)로 끌어들이는 함정`);
+  return r.join(' · ');}
+function p2Tip(u,q){const w=(q.q.match(WHRE)||[])[1];
+  return ({'의문사':`첫 단어 ‘${w||'의문사'}’를 놓치지 마세요. 의문사 의문문은 Yes/No 보기부터 지웁니다.`,
+    '간접':'“확인해 볼게요”, “○○ 씨가 알아요”처럼 질문에 직접 답하지 않는 우회 응답이 정답이 됩니다.',
+    '선택':'A or B 질문은 둘 중 하나, 둘 다, 둘 다 아님, 제3의 선택이 모두 정답이 될 수 있습니다. Yes/No는 대개 오답입니다.',
+    '부가':'부가·부정 의문문은 부정어를 빼고 긍정으로 바꿔 생각하세요. Yes/No 뒤 내용이 사실과 맞는지가 핵심입니다.',
+    '일반·부정':'Yes/No 뒤에 오는 내용이 질문과 맞는지 확인하세요. Yes/No를 생략한 우회 응답도 자주 정답입니다.',
+    '요청·제안':'수락(Sure, No problem)이나 거절+이유가 정답 패턴입니다. 질문 단어를 반복한 보기는 의심하세요.',
+    '평서문':'평서문에는 맞장구, 해결책 제시, 되묻기가 정답이 됩니다. 같은 단어 반복은 함정입니다.'})[u.tag]||(w?`첫 단어 ‘${w}’를 놓치지 마세요.`:'질문 단어를 그대로 반복하거나 비슷한 소리를 쓴 보기는 함정일 때가 많습니다.');}
+function p2Elim(u,q,vw){const x=q.x||{};
+  const rows=vw.opts.map((o,j)=>{const oi=vw.idx[j],good=j===vw.a;
+    const why=(x.trap&&x.trap[oi])||(good?(u.tag==='간접'?'우회 응답: 질문에 직접 답하지 않지만 대화가 자연스럽게 이어짐':'질문에 맞는 응답'):autoTrap(q.q,o)||'질문의 요지와 맞지 않는 응답');
+    return `<li class="${good?'ok':'no'}"><b>${good?'✓':'✗'} ${LET[j]}</b> ${esc(o)}${x.otr&&x.otr[oi]?` <span class="muted">(${esc(x.otr[oi])})</span>`:''}<br><span class="small">${esc(why)}</span></li>`;}).join('');
+  return `<div class="xr"><b>소거법</b>${x.tr?` <span class="muted">질문 해석: ${esc(x.tr)}</span>`:''}<ul class="elim">${rows}</ul><b>💡 팁</b> ${esc(x.tip||p2Tip(u,q))}</div>`;}
+function explainHtml(r,u,q,vw,sel){const x=q.x||{},ok=sel===vw.a;
+  let h=`<div class="explain ${ok?'':'bad'}"><b>${ok?'정답':sel===-1?'시간 초과 · 정답은 '+LET[vw.a]:'오답 · 정답은 '+LET[vw.a]}</b>${u.part===5&&r.ut&&r.ut[u.id]!=null?` <span class="kbd">⏱ ${r.ut[u.id]}초</span>`:''}<br>${esc(vw.exp)}`;
+  if(x.tr&&u.part!==2)h+=`<div class="xr"><b>해석</b> ${esc(x.tr)}</div>`;
+  if(x.vo)h+=`<div class="xr"><b>어휘</b> ${esc(x.vo)}</div>`;
+  if(u.part===2)h+=p2Elim(u,q,vw);
+  const ev=evList(x);if(ev.length)h+=`<div class="xr"><b>🖍 근거</b> ${ev.map(e=>`“${esc(e)}”`).join(' ')}<br><b>→ 정답 보기</b> ${esc(vw.opts[vw.a])}${x.pa?`<br><span class="muted">${esc(x.pa)}</span>`:''}</div>`;
+  if(S.dw[q.id]===2)h+=`<div class="row" style="margin-top:8px"><button class="btn sm primary" data-master="${q.id}">✓ 마스터 완료</button><span class="small muted">백지에서 다시 맞혔어요. 해설을 설명할 수 있으면 눌러서 오답노트에서 빼세요.</span></div>`;
+  else if(S.dw[q.id]===1)h+=`<div class="small muted" style="margin-top:6px">📒 오답노트 ①단계에 담았습니다. 나중에 백지에서 다시 풀어 맞히면 ②단계가 됩니다.</div>`;
+  return h+'</div>';}
+
+/* ---------- smart wrong-answer notebook: ① missed → ② re-solved from blank → ③ mastered (removed) ---------- */
+function masterQ(id){if(!S.dw[id])return;delete S.dw[id];S.mst=(S.mst||0)+1;save();}
+function qLine(u,q){return (u.part===1?u.scene:u.part===6?u.ptitle+' · '+q.q:q.q).split('\n')[0];}
+function drawNote(){const r=S.runs.wrong;
+  $('#dLede').textContent='① 틀림 → ② 백지에서 다시 풀어 맞힘 → ③ 해설을 설명할 수 있으면 ‘마스터 완료’로 영구 제거';$('#dProg').style.width='0';dClock();
+  const it=[];U.forEach(u=>u.qs.forEach(q=>{if(S.dw[q.id])it.push([u,q,S.dw[q.id]]);}));it.sort((a,b)=>b[2]-a[2]||a[0].part-b[0].part);
+  const n2=it.filter(x=>x[2]===2).length,n1=it.length-n2,cont=r&&!r.fin&&r.u.length&&r.pos<r.u.length;
+  let h=`<div class="quiz"><div class="lab">스마트 오답노트</div>
+    <div class="grid3n"><div class="stat"><b>${n1}</b><span>① 다시 풀 문제</span></div><div class="stat"><b>${n2}</b><span>② 마스터 대기</span></div><div class="stat"><b>${S.mst||0}</b><span>③ 마스터 완료</span></div></div>
+    ${it.length?`<div class="row"><button class="btn primary" id="nStart">${cont?'▶ 이어서 풀기':'백지에서 다시 풀기'}</button><span class="small muted">①단계부터 최대 30묶음 · 보기 표시 없이 처음부터</span></div>`:'<p class="muted" style="margin:0">오답노트가 비어 있습니다. 문제를 풀다 틀리면 자동으로 담깁니다.</p>'}`;
+  h+=it.slice(0,120).map(([u,q,st])=>{const vw=qView(q);
+    return `<details><summary><span class="pill" style="margin-right:6px">${st===2?'②':'①'} P${u.part}</span>${esc(qLine(u,q))}</summary>${st===2?`<p class="small muted">${vw.opts.map((o,j)=>`${LET[j]}. ${esc(o)}`).join(' &nbsp;/&nbsp; ')}</p><p><b>정답 ${LET[vw.a]}. ${esc(vw.opts[vw.a])}</b></p><p class="muted">${esc(vw.exp)}</p><button class="btn sm primary" data-master="${q.id}">✓ 마스터 완료</button>`:'<p class="small muted">정답은 숨겨 두었습니다. ‘백지에서 다시 풀기’로 다시 풀어 맞히면 해설과 마스터 버튼이 열립니다.</p>'}</details>`;}).join('');
+  $('#dBox').innerHTML=h+'</div>';
+  const b=$('#nStart');if(b)b.onclick=()=>{if(cont){dr.noteView=false;renderDrill(true);}else dStartWrong();};
+  $$('#dBox [data-master]').forEach(x=>x.onclick=()=>{masterQ(x.dataset.master);drawNote();});}
+
+/* ================= dashboard: 4 daily routines, streak, stats ================= */
+function actDay(d){d=d||iso(TODAY);S.act[d]=S.act[d]||{};return S.act[d];}
+function actAdd(k){const a=actDay();a[k]=(a[k]||0)+1;}
+const ROUT=[
+  {k:'v',n:20,t:'단어 카드 20개',s:'짝꿍 표현까지 소리 내어 · ‘외웠어요’/‘다시 볼래요’',go:()=>go('vocab')},
+  {k:'p5',n:20,t:'Part 5 타임어택 20문항',s:'문항당 20초 · 보기 어형 먼저 훑기',go:()=>dFree(5,20,'Part 5 타임어택 · 문항당 20초')},
+  {k:'p2',n:15,t:'Part 2 듣고 소거 15문항',s:'첫 단어 받아 적기 · 채점 후 ‘따라 읽기’',go:()=>dFree(2,15,'Part 2 소거법 · 채점 후 따라 읽기')},
+  {k:'w',n:10,t:'오답노트 10문항',s:'백지에서 다시 풀기 · 설명되면 마스터',go:()=>{dr.key='wrong';dr.noteView=true;go('drill');}}];
+function dFree(p,n,note){S.runs.free=buildRun([[p,n]],'free'+Date.now());S.runs.free.note=note;dr.key='free';save();go('drill');
+  $$('#dPick button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.p==String(p)));renderDrill(true);}
+function routDone(x,a){if(a.m&&a.m[x.k]!=null)return a.m[x.k];
+  if(x.k==='w'&&!Object.keys(S.dw).length&&(a.w||0)===0)return null;
+  return (a[x.k]||0)>=x.n;}
+function streak(){const on=d=>{const a=S.act[d];if(a&&(Object.keys(a).some(k=>k!=='m'&&a[k]>0)||(a.m&&Object.values(a.m).some(Boolean))))return true;
+    const n=Math.round((new Date(d+'T00:00:00')-START)/864e5)+1;return n>=1&&n<=TOTAL&&!!S.done[n];};
+  const t=new Date(TODAY);if(!on(iso(t)))t.setDate(t.getDate()-1);let c=0;while(on(iso(t))&&c<400){c++;t.setDate(t.getDate()-1);}return c;}
+function renderDash(){const box=$('#tDash');if(!box)return;const a=actDay(),today=selDay===dayNow||dayNow<1||dayNow>TOTAL;
+  let r=0,n=0;for(const p in S.pstat){r+=S.pstat[p].r;n+=S.pstat[p].n;}
+  const w2=Object.values(S.dw).filter(v=>v===2).length,w1=Object.keys(S.dw).length-w2,kn=Object.values(S.known).filter(v=>v===true).length;
+  const st=ROUT.map(x=>routDone(x,a)),ok=st.filter(v=>v!==false).length,sk=streak();
+  box.innerHTML=`<div class="row between"><div class="lab">오늘의 4대 루틴 · ${ok}/4</div><span class="kbd">🔥 연속 ${sk}일</span></div>
+    <ul class="rout">${ROUT.map((x,i)=>{const v=st[i],c=x.k==='w'&&v===null?'오답 없음':`${Math.min(a[x.k]||0,x.n)}/${x.n}`;
+      return `<li class="${v!==false?'on':''}"><button class="ck" data-k="${x.k}" aria-pressed="${v!==false}" aria-label="${esc(x.t)} 완료 표시">${v!==false?'✓':''}</button>
+        <div><b>${esc(x.t)}</b> <span class="kbd">${c}</span><br><span class="small muted">${esc(x.s)}</span></div><button class="btn sm" data-go="${i}">시작</button></li>`;}).join('')}</ul>
+    ${today?'':'<p class="small muted" style="margin:0">체크리스트는 오늘 날짜 기준입니다.</p>'}
+    <div class="dstats"><div><b>${n?Math.round(r/n*100)+'%':'–'}</b><span>정답률</span></div><div><b>${n}</b><span>푼 문제</span></div><div><b>${w1}<small>${w2?` +${w2}`:''}</small></b><span>오답${w2?' (+마스터 대기)':''}</span></div><div><b>${kn}</b><span>외운 단어</span></div></div>`;
+  $$('#tDash [data-go]').forEach(b=>b.onclick=()=>ROUT[+b.dataset.go].go());
+  $$('#tDash .ck').forEach(b=>b.onclick=()=>{const x=ROUT.find(y=>y.k===b.dataset.k),d=actDay();d.m=d.m||{};d.m[x.k]=!(routDone(x,d)!==false);save();renderDash();});}
+
+/* ================= vocab: 3D flip cards with collocation, example and pronunciation ================= */
+function vSay(e,which){if(e)e.stopPropagation();const w=vs.q[vs.i];if(!w)return;const x=VX[w[0]]||[];
+  ttsPlay(which==='ex'?[['N',x[2]||w[0]]]:[['N',w[0]],...(x[1]&&x[1]!==w[0]?[['N',x[1]]]:[])]);}
+function vDraw(){const w=vs.q[vs.i],c=$('#vCard');
+  if(w!==vs.lastW){vs.lastW=w;c.classList.add('nt');c.classList.toggle('on',vs.flip);void c.offsetWidth;c.classList.remove('nt');}
+  if(!w){vs.done=true;c.classList.remove('on');$('#vPos').textContent='';$('#vCol').textContent='';
+    $('#vW').textContent=vs.set===0&&!vSetWords().length?'다시 볼 단어가 없어요':'한 바퀴 끝';$('#vHint').textContent='눌러서 처음부터 다시';$('#vCount').textContent='';}
+  else{vs.done=false;const x=VX[w[0]]||[];
+    $('#vPos').textContent=x[0]||'';$('#vW').textContent=w[0];$('#vCol').textContent=x[1]||'';$('#vCol').hidden=!x[1];
+    $('#vM').textContent=w[1];$('#vEx').textContent=x[2]||'';$('#vExT').textContent=x[3]||'';$('#vExB').hidden=!x[2]||!TTS.ok;
+    $('#vHint').textContent='눌러서 뒤집기';$('#vCount').textContent=`${vs.i+1} / ${vs.q.length}`;c.classList.toggle('on',vs.flip);}
+  $('#vSay').hidden=!w||!TTS.ok;$('#vKnow').disabled=$('#vAgain').disabled=!w;}
+$('#vSay').onclick=e=>vSay(e,'w');$('#vExB').onclick=e=>vSay(e,'ex');
+$('#vCard').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('#vCard').click();}};
 
 /* ================= scores ================= */
 function scLabels(){const n=$('#scKind').value==='full'?100:50;$('#scLcL').textContent=`LC 정답 수 (0–${n})`;$('#scRcL').textContent=`RC 정답 수 (0–${n})`;$('#scLc').max=n;$('#scRc').max=n;}
