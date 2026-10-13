@@ -567,3 +567,21 @@ Object.assign(VX,{
 "timely":["형용사","a timely manner","Please respond in a timely manner.","제때 답변해 주세요."],
 "tolerate":["동사","tolerate delays","Customers will not tolerate long delays.","고객들은 긴 지연을 참지 않을 것이다."]
 });
+Object.assign(VX,{
+"transit":["명사","in transit","The package was damaged in transit.","소포가 운송 중에 파손되었다."],
+"transparent":["형용사","a transparent process","The hiring process should be fair and transparent.","채용 과정은 공정하고 투명해야 한다."],
+"trial":["명사","a free trial","Sign up for a 30-day free trial.","30일 무료 체험에 가입하세요."],
+"undergo":["동사","undergo renovation","The hotel is undergoing renovation.","그 호텔은 보수 공사 중이다."],
+"undertake":["동사","undertake a project","The firm undertook a major expansion project.","그 회사는 대규모 확장 프로젝트에 착수했다."],
+"unprecedented":["형용사","unprecedented demand","The product saw unprecedented demand.","그 제품은 전례 없는 수요를 기록했다."],
+"upgrade":["동사","upgrade software","We will upgrade the software this weekend.","이번 주말에 소프트웨어를 업그레이드한다."],
+"utilize":["동사","utilize resources","Managers must utilize resources efficiently.","관리자는 자원을 효율적으로 활용해야 한다."],
+"vacancy":["명사","fill a vacancy","We need to fill the vacancy quickly.","공석을 빨리 채워야 한다."],
+"venue":["명사","a conference venue","The hotel is a popular conference venue.","그 호텔은 인기 있는 회의 장소다."],
+"verify":["동사","verify information","Please verify your contact information.","연락처 정보를 확인해 주세요."],
+"viable":["형용사","a viable option","Remote work is a viable option for many teams.","재택근무는 많은 팀에게 실행 가능한 선택지다."],
+"visibility":["명사","increase visibility","The ad campaign increased our brand's visibility.","광고 캠페인으로 브랜드 인지도가 높아졌다."],
+"voluntary":["형용사","voluntary participation","Participation in the survey is voluntary.","설문 참여는 자발적이다."],
+"warehouse":["명사","a distribution warehouse","Orders are shipped from our central warehouse.","주문품은 중앙 창고에서 발송된다."],
+"wholesale":["형용사","wholesale prices","Members can buy at wholesale prices.","회원은 도매가로 구입할 수 있다."]
+});
