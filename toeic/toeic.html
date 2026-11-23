@@ -723,7 +723,7 @@ Employees who have completed a similar course within the past year may request a
 ["In which of the positions marked [1], [2], [3], and [4] does the following sentence best belong?\n\"Therefore, early sign-up is strongly encouraged.\"",["[1]","[2]","[3]","[4]"],3,"문장 삽입","Therefore(그러므로)의 근거는 ‘선착순 마감’. first-come, first-served 문장 바로 뒤인 [4]."]]}];
 
 const BANKLOG=[];function __snap(f,d,l,n){const q=a=>a.reduce((s,x)=>s+x.q.length,0);BANKLOG.push({f,d,l,n,c:[P1B.length,P2.length+P2N.length,q(P3B),q(P4B),G.length+G2.length,q(P6B),q(RD)+q(RD2)]});}
-const BUILD_AT="10.29 04:51";
+const BUILD_AT="11.24 08:32";
 const EX={},VX={};
 /* ================= question bank for the in-app drill (no textbook needed) ================= */
 /* Part 1: [photo description (ko), statements, answer, explanation] */
@@ -11318,6 +11318,7 @@ function renderDrill(auto){
   else{$('#dEyebrow').textContent=k==='free'?'원하는 파트만 골라서':'틀린 문제만 모아서';$('#dTitle').textContent=k==='free'?'파트별 연습':'오답노트';}
   const r=S.runs[k];
   if(k==='wrong'&&(dr.noteView||!r)){drawNote();return;}
+  if(k==='free'&&dr.freeOpts&&dr.fp){drawFreeOpts();return;}
   if(!r&&isDay){const sp=DS[n-1],lc=sp.it.some(x=>x[0]>=1&&x[0]<=4);
     $('#dLede').textContent=PLAN[n-1][1];$('#dProg').style.width='0';dClock();
     $('#dBox').innerHTML=`<div class="quiz"><div class="lab">이날 문제</div><p style="margin:0">${esc(specText(sp.it))}</p><p class="small muted" style="margin:0">목표 시간 ${sp.lim}분${lc?' · 듣기 문제는 폰의 영어 음성으로 읽어 줍니다. 이어폰을 준비하세요.':''}${MOCKDAY[n]?' · 다 풀면 점수가 ‘모의고사 점수’에 자동 기록됩니다.':''}</p><div class="row"><button class="btn primary" id="dStart">시작</button></div></div>`;
@@ -11397,10 +11398,11 @@ function drawResult(r){
   const wr=runQs(r).filter(q=>r.sel[q.id]!==qView(q).a);
   $('#dBox').innerHTML=`<div class="quiz"><div class="row between"><div class="stat"><b>${sc.c} / ${sc.n}</b><span>정답률 ${Math.round(pct*100)}% · 걸린 시간 ${mmss(r.t||0)}${lim?` (목표 ${lim}분)`:''}</span></div></div>
     <div style="display:flex;flex-direction:column;gap:8px">${rows}</div>${pc.length?`<p class="small muted" style="margin:0">풀이 속도 · ${pc.join(' · ')}</p>`:''}<p style="margin:0">${esc(msg)}</p>
-    <div class="row">${n?`<button class="btn primary" id="dDone">${S.done[n]?'완료 표시됨 ✓':'이날 학습 완료로 표시'}</button>`:''}${n||k==='more'?'<button class="btn primary" id="dMore">한 세트 더 (같은 유형)</button>':''}<button class="btn" id="dAgain">처음부터 다시 풀기</button>${wr.length?`<button class="btn" id="dWrong">오답노트 (${Object.keys(S.dw).length})</button>`:''}</div>
+    <div class="row">${n?`<button class="btn primary" id="dDone">${S.done[n]?'완료 표시됨 ✓':'이날 학습 완료로 표시'}</button>`:''}${n||k==='more'?'<button class="btn primary" id="dMore">한 세트 더 (같은 유형)</button>':''}<button class="btn" id="dAgain">처음부터 다시 풀기</button>${k==='free'?'<button class="btn primary" id="dFreeNew">다른 문제 고르기</button>':''}${wr.length?`<button class="btn" id="dWrong">오답노트 (${Object.keys(S.dw).length})</button>`:''}</div>
     ${wr.length?`<div><div class="lab" style="margin:6px 0">이번에 틀린 문제 ${wr.length}개</div>${wr.map(q=>{const vw=qView(q),u=UM[q.u];return `<details><summary><span class="pill" style="margin-right:8px">Part ${u.part}</span>${esc((u.part===1?u.scene:q.q).split('\n')[0])}</summary><p class="small muted">${vw.opts.map((op,j)=>`${LET[j]}. ${esc(op)}`).join(' &nbsp;/&nbsp; ')}</p><p><b>정답 ${LET[vw.a]}. ${esc(vw.opts[vw.a])}</b></p><p class="muted">${esc(vw.exp)}</p></details>`;}).join('')}</div>`:''}</div>`;
   const dd=$('#dDone');if(dd)dd.onclick=()=>{S.done[n]=true;save();renderRail();dd.textContent='완료 표시됨 ✓';};
   $('#dAgain').onclick=()=>{r.pos=0;r.sel={};r.t=0;r.fin=false;dr.tmp={};save();renderDrill(true);};
+  const fn=$('#dFreeNew');if(fn)fn.onclick=()=>{dr.fp=dr.fp||(r.u[0]&&UM[r.u[0]].part)||5;dr.freeOpts=true;renderDrill(false);$('main').scrollTop=0;};
   const dw=$('#dWrong');if(dw)dw.onclick=()=>{dr.key='wrong';dr.noteView=true;renderDrill(false);$('main').scrollTop=0;};
   const dm=$('#dMore');if(dm)dm.onclick=()=>{const b=k==='more'?r.base:n;let it=DS[b-1].it.filter(x=>typeof x[0]==='number');if(!it.length)it=[['wrong',20]];
     S.runs.more=buildRun(it,'more'+Date.now(),0);S.runs.more.base=b;S.runs.more.note='안 푼 문제부터 같은 유형으로';dr.key='more';save();renderDrill(true);$('main').scrollTop=0;};}
@@ -11408,9 +11410,36 @@ function wStage(u){return Math.min(...u.qs.filter(q=>S.dw[q.id]).map(q=>S.dw[q.i
 function dStartWrong(){dr.key='wrong';dr.noteView=false;const us=U.filter(unitWrong).sort((a,b)=>wStage(a)-wStage(b)||a.part-b.part).slice(0,30);
   S.runs.wrong=us.length?{u:us.map(u=>u.id),pos:0,sel:{},t:0,fin:false,note:`틀린 문제 ${us.length}묶음`}:null;if(!us.length)delete S.runs.wrong;save();renderDrill(true);}
 const FREEN={1:8,2:15,3:4,4:4,5:20,6:3,7:4};
+
+/* ---------- free practice: the learner picks part, type, count and scope ---------- */
+const FREEOPT={tag:'',n:null,scope:'new',p:0};
+function freeUnits(p,tag){return U.filter(u=>u.part===p&&(!tag||u.tag===tag));}
+function freeTags(p){const m={};U.filter(u=>u.part===p).forEach(u=>{m[u.tag]=(m[u.tag]||0)+1;});return Object.keys(m).sort().map(t=>[t,m[t]]);}
+const TAGN={single:'단일지문',chat:'채팅',double:'이중지문',triple:'삼중지문'};
+function drawFreeOpts(){const p=dr.fp,unit=p===3||p===4||p===6?'세트':p===7?'개 지문':'문항';
+  if(!FREEOPT.n||FREEOPT.p!==p){FREEOPT.p=p;FREEOPT.tag='';FREEOPT.n=FREEN[p];}
+  const tags=freeTags(p),pool=freeUnits(p,FREEOPT.tag),fresh=pool.filter(u=>!S.seen[u.id]).length;
+  const ns=[...new Set([Math.max(1,FREEN[p]>>1),FREEN[p],FREEN[p]*2,FREEN[p]*3])];
+  $('#dEyebrow').textContent='원하는 문제를 직접 골라서';$('#dTitle').textContent='파트별 연습';
+  $('#dLede').textContent=PNAME[p];$('#dProg').style.width='0';dClock();
+  $('#dBox').innerHTML=`<div class="quiz"><div class="lab">${esc(PNAME[p])} · 전체 ${pool.length}묶음 중 안 푼 문제 ${fresh}묶음</div>
+    ${tags.length>1?`<div><div class="lab" style="margin-bottom:6px">유형</div><div class="seg" id="foTag"><button data-v="" aria-pressed="${!FREEOPT.tag}">전체</button>${tags.map(([t,c])=>`<button data-v="${esc(t)}" aria-pressed="${FREEOPT.tag===t}">${esc(TAGN[t]||t)} ${c}</button>`).join('')}</div></div>`:''}
+    <div><div class="lab" style="margin-bottom:6px">개수 (${unit})</div><div class="seg" id="foN">${ns.map(x=>`<button data-v="${x}" aria-pressed="${FREEOPT.n===x}">${x}</button>`).join('')}</div></div>
+    <div><div class="lab" style="margin-bottom:6px">범위</div><div class="seg" id="foScope">${[['new','안 푼 문제만'],['prefer','안 푼 문제 먼저'],['all','전부 섞기'],['seen','푼 문제 다시']].map(([v,l])=>`<button data-v="${v}" aria-pressed="${FREEOPT.scope===v}">${l}</button>`).join('')}</div></div>
+    <div class="row"><button class="btn primary" id="foGo">시작</button>${S.runs.free&&S.runs.free.u.length?'<button class="btn" id="foBack">하던 세트로 돌아가기</button>':''}</div><p class="small muted" id="foMsg" style="margin:0"></p></div>`;
+  const bind=(id,key,num)=>$$('#'+id+' button').forEach(b=>b.onclick=()=>{FREEOPT[key]=num?+b.dataset.v:b.dataset.v;drawFreeOpts();});
+  bind('foTag','tag');bind('foN','n',1);bind('foScope','scope');
+  const bk=$('#foBack');if(bk)bk.onclick=()=>{dr.freeOpts=false;renderDrill(false);};
+  $('#foGo').onclick=()=>{const seed=hsh('free'+Date.now());let us=freeUnits(p,FREEOPT.tag);
+    if(FREEOPT.scope==='new')us=us.filter(u=>!S.seen[u.id]);else if(FREEOPT.scope==='seen')us=us.filter(u=>S.seen[u.id]);
+    if(!us.length){$('#foMsg').textContent=FREEOPT.scope==='new'?'이 조건에서는 안 푼 문제가 없습니다. 범위를 바꿔 보세요.':'이 조건에 맞는 문제가 없습니다.';return;}
+    const ids=(FREEOPT.scope==='prefer'?pickUnits(us,FREEOPT.n,seed,new Set()):sshuffle(us,seed).slice(0,FREEOPT.n)).map(u=>u.id);
+    const sc={new:'안 푼 문제만',prefer:'안 푼 문제 먼저',all:'전부 섞기',seen:'푼 문제 다시'}[FREEOPT.scope];
+    S.runs.free={u:ids,pos:0,sel:{},t:0,fin:false,note:`${PNAME[p]}${FREEOPT.tag?' · '+(TAGN[FREEOPT.tag]||FREEOPT.tag):''} · ${sc}`,ut:{}};
+    dr.freeOpts=false;save();renderDrill(true);$('main').scrollTop=0;};}
 $('#dPick').innerHTML=[1,2,3,4,5,6,7].map(p=>`<button data-p="${p}">Part ${p}</button>`).join('');
-$$('#dPick button').forEach(b=>b.onclick=()=>{const p=+b.dataset.p;S.runs.free=buildRun([[p,FREEN[p]]],'free'+Date.now());S.runs.free.note=PNAME[p];save();$$('#dPick button').forEach(x=>x.setAttribute('aria-pressed',x===b));renderDrill(true);});
-$$('#dMode button').forEach(b=>b.onclick=()=>{const m=b.dataset.m;if(m==='day')dr.key=null;else if(m==='wrong'){dr.key='wrong';dr.noteView=true;}else dr.key=m;renderDrill(false);});
+$$('#dPick button').forEach(b=>b.onclick=()=>{dr.fp=+b.dataset.p;dr.freeOpts=true;$$('#dPick button').forEach(x=>x.setAttribute('aria-pressed',x===b));renderDrill(false);});
+$$('#dMode button').forEach(b=>b.onclick=()=>{const m=b.dataset.m;dr.freeOpts=m==='free'&&!!dr.fp&&!S.runs.free;if(m==='day')dr.key=null;else if(m==='wrong'){dr.key='wrong';dr.noteView=true;}else dr.key=m;renderDrill(false);});
 $('#dPrev').onclick=()=>{if(selDay>1){selDay--;renderDrill(false);}};
 $('#dNext').onclick=()=>{if(selDay<TOTAL){selDay++;renderDrill(false);}};
 function openDrill(n){selDay=n;dr.key=null;go('drill');}
